@@ -1,5 +1,4 @@
-
-package com.android.settings.liquid;
+package com.android.settings.mysterious;
 
 import android.content.Intent;
 import android.net.Uri;

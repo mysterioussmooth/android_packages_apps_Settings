@@ -7,9 +7,9 @@
         android:title="@string/devs">
 
         <com.android.settings.widget.DeveloperPreference
-           android:title="LiquidSmooth"
-           liquid:nameDev="liquidsmooth"
-           liquid:twitterHandle="liquid0624"
+           android:title="Mysterious"
+           liquid:nameDev="Mysterious"
+           liquid:twitterHandle="ptichalouf"
            liquid:donateLink="@string/donate_liquid" />
     </PreferenceCategory>
 

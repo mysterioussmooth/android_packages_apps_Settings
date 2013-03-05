@@ -49,11 +49,11 @@ public class About extends SettingsPreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference == mSiteUrl) {
-            launchUrl("http://goo.im/devs/liquidsmooth");
+            launchUrl("http://goo.im/devs/Mysterious");
         } else if (preference == mSourceUrl) {
-            launchUrl("http://github.com/LiquidSmooth");
+            launchUrl("http://github.com/mysterioussmooth");
         } else if (preference == mFacebookUrl) {
-            launchUrl("https://www.facebook.com/liquidsmoothroms");
+            launchUrl("https://www.facebook.com/ptichalouf");
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }

@@ -22,7 +22,7 @@
         <com.android.settings.widget.DeveloperPreference
            android:title="Ptichalouf"
            liquid:nameDev="Ptichalouf"
-           liquid:twitterHandle="Ptichalouf"
+           liquid:twitterHandle="Ptichalouf" />
         <com.android.settings.widget.DeveloperPreference
            android:title="ItsMikeRamsay"
            liquid:nameDev="itsmikeramsay"

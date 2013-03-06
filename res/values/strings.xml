@@ -4671,7 +4671,7 @@
     <string name="liquid_facebook_title">Mysterious Facebook</string>
     <string name="donate_cyanogen">http://forum.cyanogenmod.com/donate</string>
     <string name="donate_slim">http://forum.xda-developers.com/donatetome.php?u=4135991</string>
-    <string name="liquid_facebook_summary">https://www.facebook.com/Mysteriousom\nPlease like us and join in on facebook</string>
+    <string name="liquid_facebook_summary">https://www.facebook.com/Mysteriousrom\nPlease like us and join in on facebook</string>
     <string name="liquid_source_summary">Source at http://github.com/mysterioussmooth\nMysterious is fully open source code</string>
     <string name="liquid_website_summary">http://goo.im/devs/mysterious\nFind all the latest builds and news here</string>
 

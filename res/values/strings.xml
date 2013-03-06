@@ -4642,7 +4642,7 @@
 
     <!-- **** LIQUIDSMOOTH ADDITIONS START **** -->
 
-    <!-- LiquidSmooth Settings -->
+    <!-- Mysterious Settings -->
     <string name="advanced_settings_title">Advanced</string>
     <string name="general_settings_title">General</string>
     <string name="style_settings_title">Style</string>
@@ -4658,7 +4658,7 @@
     <string name="themes_settings_title">Themes</string>
     <string name="additional_settings_title">Additional</string>
 
-    <!-- About LiquidSmooth -->
+    <!-- About Mysterious -->
     <string name="links">Links</string>
     <string name="devs">Lead Developer</string>
     <string name="devs_co">Developer</string>

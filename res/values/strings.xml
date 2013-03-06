@@ -4439,7 +4439,7 @@
     <string name="device_hostname">Device hostname</string>
 
     <!-- About phone screen,  setting option name-->
-    <string name="mod_version">LiquidSmooth version</string>
+    <string name="mod_version">Mysterious version</string>
     <string name="mod_version_default">Unknown</string>
     <!-- About device screen, Cpu info. -->
     <string name="cpu_info">CPU</string>
@@ -4449,7 +4449,7 @@
 
     <!-- INTERFACE Settings  -->
     <!-- Settings main menu category heading. Interface (Launcher, Themes, System). [CHAR LIMIT=40] -->
-    <string name="header_category_interface">LIQUIDSMOOTH</string>
+    <string name="header_category_interface">Mysterious</string>
 
     <!-- Profiles settings  -->
     <string name="profiles_settings_title">Profiles</string>
@@ -4666,14 +4666,14 @@
     <string name="about_liquid_title">About rom</string>
     <string name="about_liquid_summary">Get to know the team</string>
     <string name="donate_liquid">http://bit.ly/Ruy2HF</string>
-    <string name="liquid_source_title">LiquidSmooth Github</string>
-    <string name="liquid_website_title">LiquidSmooth Goo.im</string>
-    <string name="liquid_facebook_title">LiquidSmooth Facebook</string>
+    <string name="liquid_source_title">Mysterious Github</string>
+    <string name="liquid_website_title">Mysterious Goo.im</string>
+    <string name="liquid_facebook_title">Mysterious Facebook</string>
     <string name="donate_cyanogen">http://forum.cyanogenmod.com/donate</string>
     <string name="donate_slim">http://forum.xda-developers.com/donatetome.php?u=4135991</string>
-    <string name="liquid_facebook_summary">https://www.facebook.com/liquidsmoothroms\nPlease like us and join in on facebook</string>
-    <string name="liquid_source_summary">Source at http://github.com/LiquidSmooth\nLiquidSmooth is fully open source code</string>
-    <string name="liquid_website_summary">http://goo.im/devs/liquidsmooth\nFind all the latest builds and news here</string>
+    <string name="liquid_facebook_summary">https://www.facebook.com/Mysteriousom\nPlease like us and join in on facebook</string>
+    <string name="liquid_source_summary">Source at http://github.com/mysterioussmooth\nMysterious is fully open source code</string>
+    <string name="liquid_website_summary">http://goo.im/devs/mysterious\nFind all the latest builds and news here</string>
 
     <!-- Brightness Customization -->
     <string name="custom_brightness_summary">View or change custom brightness</string>

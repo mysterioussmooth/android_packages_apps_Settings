@@ -23,22 +23,7 @@
            android:title="Ptichalouf"
            liquid:nameDev="Ptichalouf"
            liquid:twitterHandle="Ptichalouf" />
-        <com.android.settings.widget.DeveloperPreference
-           android:title="ItsMikeRamsay"
-           liquid:nameDev="itsmikeramsay"
-           liquid:twitterHandle="itsmikeramsay" />
-        <com.android.settings.widget.DeveloperPreference
-           android:title="DAGr8"
-           liquid:nameDev="DAGr8"
-           liquid:twitterHandle="Saurom_projekt" />
-        <com.android.settings.widget.DeveloperPreference
-           android:title="JacobVanCleve"
-           liquid:nameDev="JacobVanCleve"
-           liquid:twitterHandle="jacobvancleve" />
-        <com.android.settings.widget.DeveloperPreference
-           android:title="Deadman96385"
-           liquid:nameDev="Deadman96385"
-           liquid:twitterHandle="Deadman96385" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="links"

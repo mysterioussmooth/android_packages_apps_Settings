@@ -137,6 +137,22 @@
             android:name=".liquid.superuser.SuReceiver"
             android:permission="android.permission.REPORT_SUPERUSER" />
 
+        <receiver
+            android:name=".liquid.superuser.PackageChangeReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
         <!-- Settings -->
 
         <activity android:name="Settings"
@@ -1519,6 +1535,7 @@
         <activity android:name=".notificationlight.NotificationLightSettings" />
         <activity android:name=".notificationlight.BatteryLightSettings" />
         <activity android:name=".liquid.QuickSettings" />
+        <activity android:name=".liquid.QuickSettingsTilesStyle" />
         <activity android:name=".liquid.NotificationDrawer" />
         <activity android:name=".liquid.Pie" />
         <activity android:name=".liquid.PieColor" />
@@ -1591,6 +1608,18 @@
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
                 android:value="com.android.settings.liquid.QuickSettingsTiles" />
+        </activity>
+
+        <!-- Pseudo-activity used to provide an intent-filter entry point to quick settings tiles config -->
+        <activity android:name="Settings$QuickSettingsActivity"
+                android:label="@string/quick_settings_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.android.settings.liquid.QuickSettings" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.liquid.QuickSettings" />
         </activity>
 
         <!-- Pseudo-activity used to provide an intent-filter entry point to quite hours settings -->

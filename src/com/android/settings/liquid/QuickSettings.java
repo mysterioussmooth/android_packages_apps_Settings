@@ -34,10 +34,12 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import android.preference.PreferenceCategory;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
@@ -160,8 +162,16 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         mDynamicBugReport.setChecked(Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_BUGREPORT, 1) == 1);
         mDynamicIme = (CheckBoxPreference) prefSet.findPreference(DYNAMIC_IME);
         mDynamicIme.setChecked(Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_IME, 1) == 1);
+
         mDynamicUsbTether = (CheckBoxPreference) prefSet.findPreference(DYNAMIC_USBTETHER);
-        mDynamicUsbTether.setChecked(Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_USBTETHER, 1) == 1);
+        if (mDynamicUsbTether != null) {
+            if (deviceSupportsUsbTether()) {
+                mDynamicUsbTether.setChecked(Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_USBTETHER, 1) == 1);
+            } else {
+                mDynamicTiles.removePreference(mDynamicUsbTether);
+            }
+        }
+
         mDynamicWifi = (CheckBoxPreference) prefSet.findPreference(DYNAMIC_WIFI);
         if (mDynamicWifi != null) {
             if (deviceSupportsWifiDisplay()) {
@@ -169,9 +179,6 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
             } else {
                 mDynamicTiles.removePreference(mDynamicWifi);
             }
-        }
-        if (!deviceSupportsUsbTether()) {
-            mDynamicTiles.removePreference(mDynamicUsbTether);
         }
 
         // Don't show mobile data options if not supported
@@ -218,6 +225,11 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         // Dont show the profiles tile if profiles are disabled
         if (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) != 1) {
             QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_PROFILE);
+        }
+
+        // Dont show the LTE tile if not supported
+        if (!deviceSupportsLte()) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_LTE);
         }
 
         // Dont show the NFC tile if not supported
@@ -365,14 +377,18 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         }
     }
 
-    private boolean deviceSupportsUsbTether() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return (cm.getTetherableUsbRegexs().length != 0);
-    }
-
     private boolean deviceSupportsWifiDisplay() {
         DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
         return (dm.getWifiDisplayStatus().getFeatureState() != WifiDisplayStatus.FEATURE_STATE_UNAVAILABLE);
     }
 
+    private boolean deviceSupportsLte() {
+        final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) || tm.getLteOnGsmMode() != 0;
+    }
+
+    private boolean deviceSupportsUsbTether() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return (cm.getTetherableUsbRegexs().length != 0);
+    }
 }

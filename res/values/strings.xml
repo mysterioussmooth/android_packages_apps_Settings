@@ -1452,6 +1452,9 @@
     <!-- Do not translate.  Concise terminology for wifi with 802.1x EAP security -->
     <string name="wifi_security_eap">802.1x EAP</string>
 
+    <string name="wifi_mode">Mode</string>
+    <string name="wifi_mode_ibss">Ad-Hoc (IBSS) Network</string>
+    <string name="wifi_mode_ibss_short">Ad-Hoc</string>
 
     <!-- Button label to connect to a Wi-Fi network -->
     <string name="wifi_connect">Connect</string>
@@ -2441,6 +2444,10 @@
     <string name="lockpattern_settings_enable_summary">Must draw pattern to unlock screen</string>
     <!-- Security & location settings screen, setting check box title. This setting controls whether a visible green line is drawn as the user moves his finger around while drawing the unlock pattern.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal his pattern while he unlocks the phone.-->
     <string name="lockpattern_settings_enable_visible_pattern_title">Make pattern visible</string>
+    <!-- Security & location settings screen, setting check box title. This setting controls whether a visible red line will be drawn after the user has drawn the unlock pattern incorrectly.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal his pattern while he unlocks the phone.-->
+    <string name="lockpattern_settings_enable_error_path_title">Show pattern error</string>
+    <!-- Security & location settings screen, setting check box title. This setting controls whether the dots will be drawn when using the lockscreen pattern.-->
+    <string name="lockpattern_settings_enable_dots_title">Show pattern dots</string>
     <!-- Security & location settings screen, setting check box title. This setting controls whether tactile feedback will be produced when the user draws the pattern.-->
     <string name="lockpattern_settings_enable_tactile_feedback_title">Vibrate on touch</string>
     <!-- Security & location settings screen, setting check box title. This controls whether the device locks immediately when the power button is pressed. [CHAR LIMIT=28]-->
@@ -4791,6 +4798,12 @@
     <string name="vibrator_multiplier_title">Vibration Multiplier</string>
     <string name="notification_show_wifi_ssid_title">Show Wifi Network</string>
     <string name="notification_show_wifi_ssid_summary">Display name of current wifi network</string>
+    <string name="pref_low_battery_warning_policy_title">Low Battery Warning</string>
+    <string name="notification_behaviour_title">Notification Behavior</string>
+    <string name="xposed_dpi_title">Xposed DPI Settings</string>
+    <string name="xposed_dpi_summary">Customize DPI values of specific apps</string>
+    <string name="xposed_install_title">Xposed DPI Installer</string>
+    <string name="xposed_install_summary">*Install before using DPI settings app*</string>
 
     <!-- Keyboard Input -->
     <string name="ime_switcher_notify">Selector notification</string>
@@ -4834,12 +4847,6 @@
     <string name="custom_density_dialog_button_got">Got It!</string>
     <string name="custom_density_dialog_button_reboot">Reboot Now</string>
 
-    <!-- Xposed Density -->
-    <string name="xposed_dpi_title">Xposed DPI Settings</string>
-    <string name="xposed_dpi_summary">Customize DPI values of specific apps</string>
-    <string name="xposed_install_title">Xposed DPI Installer</string>
-    <string name="xposed_install_summary">*Install before using DPI settings app*</string>
-
     <!-- Lockscreen Activities -->
     <string name="picker_activities">Activities</string>
     <string name="select_custom_app_title">Select Application</string>
@@ -4881,6 +4888,8 @@
     <string name="lockscreen_buttons_previous">Previous Song</string>
     <string name="lockscreen_buttons_playpause">Play/Pause Music</string>
     <string name="lockscreen_buttons_toggle_sound">Toggle Sound</string>
+    <string name="lockscreen_buttons_camera">Launch Camera</string>
+    <string name="lockscreen_buttons_power_off">Screen Off</string>
 
     <!-- Lockscreen Delay -->
     <string name="delay_and_timeout_title">Delay</string>
@@ -5053,7 +5062,7 @@
     <string name="navbar_action_menu">Menu</string>
     <string name="navbar_action_ime">Open IME Switcher</string>
     <string name="navbar_action_kill">Kill App</string>
-    <string name="navbar_action_power">Power</string>
+    <string name="navbar_action_power">Screen off</string>
     <string name="navbar_action_notifications">Notifications</string>
     <string name="navbar_action_none">None</string>
     <string name="navbar_widgets">Widgets</string>
@@ -5135,7 +5144,7 @@
     <string name="open_ime_switcher">Open IME Switcher</string>
     <string name="kill_app">Kill App</string>
     <string name="lastapp">Last App</string>
-    <string name="power">Power</string>
+    <string name="power">Screen off</string>
     <string name="notifications">Notifications</string>
     <string name="custom_app">Custom App</string>
     <string name="menu_power">Powermenu</string>
@@ -5293,7 +5302,7 @@
     <string name="pie_size_title">Pie Size</string>
     <string name="pie_size_summary">Change the size of the control</string>
     <string name="pie_size_small">Small</string>
-    <string name="pie_size_default">@string/pie_mode_default</string>
+    <string name="pie_size_default">Default</string>
     <string name="pie_size_large">Large</string>
     <string name="pie_size_gigantic">Gigantic</string>
     <string name="pie_color_title">Pie Colors</string>
@@ -5310,9 +5319,9 @@
     <string name="pie_gap_title">Pie Gap</string>
     <string name="pie_gap_summary">Adjust gap that separates elements</string>
     <string name="pie_gap_none">None</string>
-    <string name="pie_gap_small">Small (Default)</string>
+    <string name="pie_gap_small">Small</string>
     <string name="pie_gap_big">Big</string>
-    <string name="pie_gap_huge">Huge</string>
+    <string name="pie_gap_huge">Huge (Default)</string>
     <string name="pie_center_title">Center Pie</string>
     <string name="pie_center_summary">Control appears where you trigger</string>
     <string name="pie_trigger_title">Trigger Size</string>
@@ -5333,6 +5342,8 @@
     <string name="pie_stick_summary">Control stays in place when rotating</string>
     <string name="all_color">Custom Colors</string>
     <string name="stock_color">Default Colors</string>
+    <string name="pie_restart_launcher_title">Restart Launcher</string>
+    <string name="pie_restart_launcher_summary">Changing screensize can have side effects</string>
 
     <!-- Powermenu -->
     <string name="power_menu_reboot_title">Rebootmenu</string>
@@ -5401,6 +5412,8 @@
     <string name="brightness_slider_top">On Top</string>
     <string name="brightness_slider_bottom">On Bottom</string>
     <string name="brightness_slider_none">Don\'t Show</string>
+    <string name="power_widget_longpress_qs_title">Longpress visibility toggle</string>
+    <string name="power_widget_longpress_qs_summary">Longpress QuickSettings flip button to toggle visibility</string>
 
     <!-- Quicksettings -->
     <string name="title_static_tiles">Static</string>
@@ -5463,6 +5476,18 @@
     <string name="tiles_reset_title">Reset</string>
     <string name="tiles_reset_message">Restore the default displayed tiles and layout?</string>
 
+    <!-- Quicksettings Style -->
+    <string name="quicksettings_tiles_style">Quicksettings Style</string>
+    <string name="quicksettings_tiles_category">Style</string>
+    <string name="summary_quicksettings_tiles_style">Show or change quicksettings style options</string>
+    <string name="tiles_per_row_title">Tiles Per Row</string>
+    <string name="tiles_per_row_duplicate_landscape_title">Landscape Quantity</string>
+    <string name="tiles_per_row_duplicate_landscape_summary">Landscape view doubles tiles per row</string>
+    <string name="quick_tiles_bg_color_title">Normal Background Color</string>
+    <string name="quick_tiles_bg_pressed_color_title">Pressed Background Color</string>
+    <string name="quick_tiles_text_color_title">Text Color</string>
+    <string name="quick_settings_style_reset">Reset Colors</string>
+
     <!-- Recents Rambar -->
     <string name="ram_bar">Recents Rambar</string>
     <string name="ram_bar_note_title">Note</string>
@@ -5516,6 +5541,8 @@
     <string name="volume_adjust_sounds_enable_summary">Play sound when adjusting volume with rocker buttons</string>
     <string name="less_notification_sounds_title">Less frequent notifications</string>
     <string name="less_notification_sounds_summary">Limit notifications of each app to play once per choosen time period</string>
+    <string name="swap_volume_buttons_title">Swap volume buttons</string>
+    <string name="swap_volume_buttons_summary">Swap volume buttons when the screen is rotated by 90 or 180 degrees</string>
 
     <!-- Statusbar General -->
     <string name="status_bar_style_title">Style</string>
@@ -5525,6 +5552,12 @@
     <string name="status_bar_signal_text_title">Signal Style</string>
     <string name="status_bar_notification_count_title">Notification Count</string>
     <string name="status_bar_notification_count_summary">Display the number of notifications</string>
+    <string name="status_bar_icon_opacity">Notification Opacity</string>
+    <string name="status_bar_icon_opacity_summary">Sets opacity of statusbar icons</string>
+    <string name="mms_breath">Breathing SMS</string>
+    <string name="mms_breath_summary">Show sms icon with breathing</string>
+    <string name="missed_call_breath">Breathing Missed Call</string>
+    <string name="missed_call_breath_summary">Show missed call breathing</string>
 
     <!-- Battery Bar -->
     <string name="battery_bar">Battery Bar Location</string>
@@ -5537,6 +5570,7 @@
     <!-- Battery Circle -->
     <string name="circle_battery_color">Circle Color</string>
     <string name="battery_text_color">Percent Text Color</string>
+    <string name="battery_text_charging_color">Percentage text charging color</string>
     <string name="circle_battery_animation_speed">Animation Speed</string>
     <string name="circle_battery_animation_speed_none">None</string>
     <string name="circle_battery_animation_speed_slow">Slow</string>
@@ -5624,6 +5658,14 @@
     <!-- USB Debugging -->
     <string name="adb_notify">USB debugging notify</string>
     <string name="adb_notify_summary">Display a notification when USB debugging is connected</string>
+    <string name="pref_ring_mode_title">Sound Modes</string>
+    <string name="pref_ring_mode_summary">View or change the Sound button modes</string>
+    <string name="pref_network_mode_title">Network modes</string>
+    <string name="pref_screentimeout_mode_title">Screen Timeout Modes</string>
+    <string name="cm_sound_mode_silent">Silent</string>
+    <string name="cm_sound_mode_vibrate">Vibrate</string>
+    <string name="cm_sound_mode_sound">Sound</string>
+    <string name="cm_sound_mode_soundVibrate">Sound &amp; Vibrate</string>
     <string name="adb_over_network">ADB over network</string>
     <string name="adb_over_network_summary">Enable TCP/IP debugging over network interfaces (Wi-Fi, USB networks). This setting is reset on reboot</string>
     <string name="adb_over_network_warning">WARNING: When ADB over network is enabled, your phone is open for intrusions on all connected networks, including GSM data network!\n\nOnly use this feature when you are connected on trusted networks.\n\nDo you really want to enable this function?</string>
@@ -5633,6 +5675,11 @@
     <string name="volume_key_cursor_control_off">Disabled</string>
     <string name="volume_key_cursor_control_on">Volume up/down moves cursor left/right</string>
     <string name="volume_key_cursor_control_on_reverse">Volume up/down moves cursor right/left</string>
+    <string name="keyboard_rotation_toggle_title">Auto keyboard rotation</string>
+    <string name="keyboard_rotation_toggle_summary">Force auto-rotate when keyboard is shown</string>
+    <string name="keyboard_rotation_timeout_title">Auto-rotate timeout</string>
+    <string name="keyboard_rotation_timeout_summary">Disables auto-rotate sensor <xliff:g id="rotate_timeout">%1$s</xliff:g> seconds after keyboard is hidden</string>
+    <string name="keyboard_rotation_dialog">Note: This feature forces auto-rotate to turn on temporarily while the keyboard is out.  It has no effect when auto-rotate is already enabled.</string>
 
     <!-- Wakeup Options -->
     <string name="pref_volume_wake_title">Volume rocker wake</string>
@@ -5651,18 +5698,11 @@
     <string name="pref_wifi_disable_hdcp_title">Skip HDCP negotiation</string>
     <string name="pref_wifi_disable_hdcp_summary">Try this option if you can connect but don\'t get any output</string>
 
-    <!-- Swap volume buttons when the screen is rotated by 90 or 180 degrees -->
-    <string name="swap_volume_buttons_title">Swap volume buttons</string>
-    <string name="swap_volume_buttons_summary">Swap volume buttons when the screen is rotated by 90 or 180 degrees</string>
+    <!-- Superuser -->
+    <string name="superuser">Superuser</string>
 
-   <!-- Low Battery Warning -->
-   <string name="pref_low_battery_warning_policy_title">Low Battery Warning</string>
-
-   <!-- Notification Behavior -->
-   <string name="notification_behaviour_title">Notification Behavior</string>
-
-   <!-- Koush Supersuer -->
-   <string name="superuser">Superuser</string>
+    <!-- TRDS Settings -->
+    <string name="trds_settings_title">Dark Liquid</string>
 
     <!-- **** LIQUIDSMOOTH ADDITIONS FINISH **** -->
 </resources>

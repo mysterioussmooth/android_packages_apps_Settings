@@ -995,6 +995,8 @@
         <item>@string/lockscreen_buttons_previous</item>
         <item>@string/lockscreen_buttons_playpause</item>
         <item>@string/lockscreen_buttons_toggle_sound</item>
+        <item>@string/lockscreen_buttons_camera</item>
+        <item>@string/lockscreen_buttons_power_off</item>
     </string-array>
 
     <string-array name="lockscreen_long_key_press_values" translatable="false">
@@ -1003,6 +1005,8 @@
         <item>PREVIOUS</item>
         <item>PLAYPAUSE</item>
         <item>SOUND</item>
+        <item>CAMERA</item>
+        <item>POWER</item>
     </string-array>
 
     <!-- Lockscreen Delays -->
@@ -1518,10 +1522,10 @@
     </string-array>
 
     <string-array name="values_pie_size" translatable="false">
-        <item>0.8</item>
+        <item>0.9</item>
         <item>1.0</item>
+        <item>1.1</item>
         <item>1.2</item>
-        <item>1.4</item>
     </string-array>
 
     <string-array name="entries_pie_mode">
@@ -1705,6 +1709,19 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+
+    <!-- QuickSettings tiles per row -->
+    <string-array name="tiles_per_row_entries" translatable="false">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="tiles_per_row_values" translatable="false">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
     <!-- Recents Rambar -->
@@ -2046,6 +2063,25 @@
         <item>2</item>
     </string-array>
 
+    <!-- Auto keyboard rotation -->
+    <string-array name="keyboard_rotation_timeout_entries" translatable="false">
+        <item>2s</item>
+        <item>5s</item>
+        <item>10s</item>
+        <item>20s</item>
+        <item>30s</item>
+        <item>60s</item>
+    </string-array>
+
+    <string-array name="keyboard_rotation_timeout_values" translatable="false">
+        <item>2000</item>
+        <item>5000</item>
+        <item>10000</item>
+        <item>20000</item>
+        <item>30000</item>
+        <item>60000</item>
+    </string-array>
+
     <!-- Wifi Settings -->
     <string-array name="wifi_countrycode_entries">
         <item>United States</item>
@@ -2142,6 +2178,28 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
+    </string-array>
+
+    <string-array name="status_bar_icon_opacity_entries">
+        <item>35%</item>
+        <item>45%</item>
+        <item>55% (default)</item>
+        <item>65%</item>
+        <item>75%</item>
+        <item>85%</item>
+        <item>95%</item>
+        <item>100%</item>
+    </string-array>
+
+    <string-array name="status_bar_icon_opacity_values">
+        <item>89</item>
+        <item>115</item>
+        <item>140</item>
+        <item>166</item>
+        <item>191</item>
+        <item>217</item>
+        <item>242</item>
+        <item>255</item>
     </string-array>
 
     <!-- **** LIQUIDSMOOTH EDITS FINISH **** -->

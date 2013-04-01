@@ -54,6 +54,13 @@
         android:title="@string/title_static_tiles" >
 
         <PreferenceScreen
+            android:key="quicksettings_tiles_style"
+            android:fragment="com.android.settings.liquid.QuickSettingsTilesStyle"
+            android:title="@string/quicksettings_tiles_style"
+            android:dependency="disable_quick_settings"
+            android:summary="@string/summary_quicksettings_tiles_style" />
+
+        <PreferenceScreen
             android:key="tile_picker"
             android:title="@string/tile_picker_title"
             android:summary="@string/tile_picker_summary"
@@ -114,7 +121,6 @@
 
         <CheckBoxPreference
             android:key="dynamic_usbtether"
-            android:dependency="disable_quick_settings"
             android:title="@string/title_dynamic_usbtether" />
 
         <CheckBoxPreference

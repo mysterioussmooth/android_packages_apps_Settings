@@ -56,14 +56,14 @@
         android:key="interface_advanced"
         android:title="@string/advanced_settings_title">
 
-	<PreferenceScreen
-	    android:key="chronus"
+	    <PreferenceScreen
+	        android:key="chronus"
             android:title="@string/chronus_title"
-	    android:summary="@string/chronus_summary" >
-	    <intent android:action="android.intent.action.MAIN"
+	        android:summary="@string/chronus_summary" >
+	        <intent android:action="android.intent.action.MAIN"
                 android:targetPackage="com.cyanogenmod.lockclock"
-		android:targetClass="com.cyanogenmod.lockclock.preference.Preferences" />
-	</PreferenceScreen>
+		        android:targetClass="com.cyanogenmod.lockclock.preference.Preferences" />
+	    </PreferenceScreen>
 
         <PreferenceScreen
             android:key="hardware_keys"
@@ -79,21 +79,26 @@
             android:key="recents_ram_bar"
             android:fragment="com.android.settings.liquid.RamBar"
             android:title="@string/ram_bar" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="interface_additional"
+        android:title="@string/additional_settings_title">
 
         <PreferenceScreen
-	    android:key="xposed_installer"
+	        android:key="xposed_installer"
             android:title="@string/xposed_install_title"
-	    android:summary="@string/xposed_install_summary" >
-	    <intent android:action="android.intent.action.MAIN"
-                 android:targetPackage="de.robv.android.xposed.installer"
-                 android:targetClass="de.robv.android.xposed.installer.XposedInstallerActivity" />
+	        android:summary="@string/xposed_install_summary" >
+	        <intent android:action="android.intent.action.MAIN"
+                android:targetPackage="de.robv.android.xposed.installer"
+                android:targetClass="de.robv.android.xposed.installer.XposedInstallerActivity" />
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="xposed_dpi"
             android:title="@string/xposed_dpi_title"
-	    android:summary="@string/xposed_dpi_summary" >
-	    <intent android:action="android.intent.action.MAIN"
+	        android:summary="@string/xposed_dpi_summary" >
+	        <intent android:action="android.intent.action.MAIN"
                 android:targetPackage="de.robv.android.xposed.mods.appsettings"
                 android:targetClass="de.robv.android.xposed.mods.appsettings.XposedModActivity" />
         </PreferenceScreen>

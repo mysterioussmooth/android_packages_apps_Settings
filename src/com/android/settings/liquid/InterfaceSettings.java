@@ -34,8 +34,10 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.Settings;
 import android.text.Spannable;
 import android.view.Display;
@@ -85,6 +87,7 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
 
         PreferenceScreen prefs = getPreferenceScreen();
         mLcdDensity = findPreference("lcd_density_setup");
+        mLcdDensity.setOnPreferenceChangeListener(this);
         String currentProperty = SystemProperties.get("ro.sf.lcd_density");
         try {
             newDensityValue = Integer.parseInt(currentProperty);
@@ -95,6 +98,8 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
 
         mAdvanced = (PreferenceCategory) prefs.findPreference(ADVANCED_SETTINGS);
         mCustomLabel = findPreference(KEY_CARRIER_LABEL);
+        mCustomLabel.setOnPreferenceClickListener(mCustomLabelClicked);
+
         updateCustomLabelTextSummary();
 
         // Only show the hardware keys config on a device that does not have a navbar
@@ -111,9 +116,11 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
 
         mNotifStyle = findPreference(KEY_NOTIF_STYLE);
         mRamBar = findPreference(KEY_RECENTS_RAM_BAR);
+        mRamBar.setOnPreferenceChangeListener(this);
         updateRamBar();
 
         mDualPane = (CheckBoxPreference) findPreference(KEY_FORCE_DUAL_PANE);
+        mDualPane.setOnPreferenceChangeListener(this);
         boolean preferDualPane = getResources().getBoolean(
                 com.android.internal.R.bool.preferences_prefer_dual_pane);
         boolean dualPaneMode = Settings.System.getInt(getActivity().getContentResolver(),
@@ -149,11 +156,11 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
             mVibrationMultiplier.setSummary(currentValue);
 
         mLowBatteryWarning = (ListPreference) findPreference(KEY_LOW_BATTERY_WARNING_POLICY);
+        mLowBatteryWarning.setOnPreferenceChangeListener(this);
         int lowBatteryWarning = Settings.System.getInt(getActivity().getContentResolver(),
                                     Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY, 3);
         mLowBatteryWarning.setValue(String.valueOf(lowBatteryWarning));
         mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntry());
-        mLowBatteryWarning.setOnPreferenceChangeListener(this);
 
         }
     }
@@ -186,14 +193,18 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
                     Settings.System.POWER_UI_LOW_BATTERY_WARNING_POLICY, lowBatteryWarning);
             mLowBatteryWarning.setSummary(mLowBatteryWarning.getEntries()[index]);
             return true;
+        } else if (preference == mDualPane) {
+            Settings.System.putInt(getActivity().getContentResolver(),
+                    Settings.System.DUAL_PANE_PREFS,
+                    ((CheckBoxPreference) preference).isChecked() ? 1 : 0);
+            return true;
         }
         return false;
     }
 
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen,
-            Preference preference) {
-        if (preference == mCustomLabel) {
+    public OnPreferenceClickListener mCustomLabelClicked = new OnPreferenceClickListener() {
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
             AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
             alert.setTitle(R.string.custom_carrier_label_title);
             alert.setMessage(R.string.custom_carrier_label_explain);
@@ -222,12 +233,9 @@ public class InterfaceSettings extends SettingsPreferenceFragment implements OnP
             });
 
             alert.show();
-        } else if (preference == mDualPane) {
-            Settings.System.putInt(getActivity().getContentResolver(),
-                    Settings.System.DUAL_PANE_PREFS,
-                    ((CheckBoxPreference) preference).isChecked() ? 1 : 0);
             return true;
         }
-        return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
+    };
+
 }
+

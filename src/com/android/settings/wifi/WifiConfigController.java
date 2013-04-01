@@ -72,8 +72,10 @@ public class WifiConfigController implements TextWatcher,
     private final AccessPoint mAccessPoint;
 
     private boolean mEdit;
+    private boolean mIbssSupported;
 
     private TextView mSsidView;
+    private CheckBox mIbssView;
 
     // e.g. AccessPoint.SECURITY_NONE
     private int mAccessPointSecurity;
@@ -142,7 +144,8 @@ public class WifiConfigController implements TextWatcher,
     }
 
     public WifiConfigController(
-            WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit) {
+            WifiConfigUiBase parent, View view, AccessPoint accessPoint, boolean edit,
+            boolean ibssSupported) {
         mConfigUi = parent;
         mInXlSetupWizard = (parent instanceof WifiConfigUiForSetupWizardXL);
 
@@ -151,6 +154,7 @@ public class WifiConfigController implements TextWatcher,
         mAccessPointSecurity = (accessPoint == null) ? AccessPoint.SECURITY_NONE :
                 accessPoint.security;
         mEdit = edit;
+        mIbssSupported = ibssSupported;
 
         mTextViewChangedHandler = new Handler();
         final Context context = mConfigUi.getContext();
@@ -160,6 +164,7 @@ public class WifiConfigController implements TextWatcher,
         mIpSettingsSpinner.setOnItemSelectedListener(this);
         mProxySettingsSpinner = (Spinner) mView.findViewById(R.id.proxy_settings);
         mProxySettingsSpinner.setOnItemSelectedListener(this);
+        mIbssView = (CheckBox) mView.findViewById(R.id.wifi_ibss_checkbox);
 
         boolean showAutoConnectField = false;
         boolean showAutoConnectFieldValue = false;
@@ -192,11 +197,18 @@ public class WifiConfigController implements TextWatcher,
             mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(View.VISIBLE);
             mView.findViewById(R.id.wifi_advanced_togglebox).setOnClickListener(this);
 
+            if (mIbssSupported)
+                mView.findViewById(R.id.wifi_ibss_toggle).setVisibility(View.VISIBLE);
+
             mConfigUi.setSubmitButton(context.getString(R.string.wifi_save));
         } else {
             mConfigUi.setTitle(mAccessPoint.ssid);
 
             ViewGroup group = (ViewGroup) mView.findViewById(R.id.info);
+
+            if (mAccessPoint.isIBSS) {
+                addRow(group, R.string.wifi_mode, context.getString(R.string.wifi_mode_ibss));
+            }
 
             DetailedState state = mAccessPoint.getState();
             if (state != null) {
@@ -216,7 +228,8 @@ public class WifiConfigController implements TextWatcher,
 
             addRow(group, R.string.wifi_security, mAccessPoint.getSecurityString(false));
 
-            boolean showAdvancedFields = false;
+            // always show advanced fields for IBSS, because we usually need a static IP
+            boolean showAdvancedFields = mAccessPoint.isIBSS;
             if (mAccessPoint.networkId != INVALID_NETWORK_ID) {
                 WifiConfiguration config = mAccessPoint.getConfig();
                 if (config.ipAssignment == IpAssignment.STATIC) {
@@ -277,7 +290,7 @@ public class WifiConfigController implements TextWatcher,
             if (mEdit) {
                 mConfigUi.setSubmitButton(context.getString(R.string.wifi_save));
             } else {
-                if (state == null && level != -1) {
+                if (state == null && (level != -1 || mAccessPoint.isIBSS)) {
                     mConfigUi.setSubmitButton(context.getString(R.string.wifi_connect));
                 } else {
                     mView.findViewById(R.id.ip_fields).setVisibility(View.GONE);
@@ -340,13 +353,23 @@ public class WifiConfigController implements TextWatcher,
         if (mAccessPoint == null) {
             config.SSID = AccessPoint.convertToQuotedString(
                     mSsidView.getText().toString());
-            // If the user adds a network manually, assume that it is hidden.
-            config.hiddenSSID = true;
+
+            if (mIbssView.isChecked()) {
+                config.isIBSS = true;
+                config.frequency = 2412; //TODO: select from UI
+            } else {
+                // If the user adds a network manually, assume that it is hidden.
+                config.hiddenSSID = true;
+            }
         } else if (mAccessPoint.networkId == INVALID_NETWORK_ID) {
             config.SSID = AccessPoint.convertToQuotedString(
                     mAccessPoint.ssid);
+            config.isIBSS = mAccessPoint.isIBSS;
+            config.frequency = mAccessPoint.frequency;
         } else {
             config.networkId = mAccessPoint.networkId;
+            config.isIBSS = mAccessPoint.isIBSS;
+            config.frequency = mAccessPoint.frequency;
         }
 
         switch (mAccessPointSecurity) {

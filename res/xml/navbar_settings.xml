@@ -23,7 +23,7 @@
         <CheckBoxPreference
             android:key="enable_nav_bar"
             android:title="@string/navbar_enable_bar"
-            android:summary="@string/navbar_restart_systemui_summary" />
+            android:summary="@string/navbar_enable_bar_summary" />
 
         <ListPreference
             android:entries="@array/glow_times_entries"
@@ -46,6 +46,7 @@
             android:key="navbar_menu_display"
             android:title="@string/title_pref_navigation_menu_display"
             android:summary="@string/summary_pref_navigation_menu_display" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -71,15 +72,12 @@
             android:key="navbar_targets_settings"
             android:fragment="com.android.settings.liquid.NavRingTargets"
             android:title="@string/navbar_targets_title" />
-    </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="navbar_widgets_cat"
-        android:title="@string/navbar_widgets">
-
-        <Preference 
-            android:key="navigation_bar_widgets"
+        <PreferenceScreen
+            android:key="status_bar"
+            android:fragment="com.android.settings.liquid.WidgetsSettings"
             android:title="@string/navbar_widgets_title" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

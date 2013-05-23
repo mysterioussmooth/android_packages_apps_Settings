@@ -36,7 +36,6 @@ import android.view.MenuItem;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.R;
 import com.android.settings.Utils;
-import com.android.settings.util.Helpers;
 import com.android.settings.widget.SeekBarPreference;
 
 import net.margaritov.preference.colorpicker.ColorPickerPreference;
@@ -51,10 +50,14 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
     private static final String PREF_NAVIGATION_BAR_WIDTH = "navigation_bar_width";
     private static final String KEY_DIMEN_OPTIONS = "navbar_dimen";
 
+    private boolean mCheckPreferences;
+
     ColorPickerPreference mNavigationBarGlowColor;
     ListPreference mNavigationBarHeight;
     ListPreference mNavigationBarHeightLandscape;
     ListPreference mNavigationBarWidth;
+    SeekBarPreference mWidthPort;
+    SeekBarPreference mWidthLand;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,7 +65,8 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
         refreshSettings();
     }
 
-    public void refreshSettings() {
+    private PreferenceScreen refreshSettings() {
+        mCheckPreferences = false;
         PreferenceScreen prefs = getPreferenceScreen();
         if (prefs != null) {
             prefs.removeAll();
@@ -77,6 +81,12 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
         mNavigationBarGlowColor.setOnPreferenceChangeListener(this);
         int intColor = Settings.System.getInt(getActivity().getContentResolver(),
                     Settings.System.NAVIGATION_BAR_GLOW_TINT, 0xffffffff);
+        if (intColor == 0xffffffff) {
+            mNavigationBarGlowColor.setSummary(getResources().getString(R.string.color_default));
+        } else {
+            String hexColor = String.format("#%08x", (0xffffffff & intColor));
+            mNavigationBarGlowColor.setSummary(hexColor);
+        }
         mNavigationBarGlowColor.setNewPreviewColor(intColor);
 
         mNavigationBarHeight = (ListPreference) findPreference(PREF_NAVIGATION_BAR_HEIGHT);
@@ -86,17 +96,34 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
         mNavigationBarHeightLandscape.setOnPreferenceChangeListener(this);
 
         mNavigationBarWidth = (ListPreference) findPreference(PREF_NAVIGATION_BAR_WIDTH);
+
+        float defaultPort = Settings.System.getFloat(getActivity()
+                .getContentResolver(), Settings.System.NAVIGATION_BAR_WIDTH_PORT, 0f);
+        mWidthPort = (SeekBarPreference) findPreference("width_port");
+        mWidthPort.setInitValue((int) (defaultPort * 2.5f));
+
+        float defaultLand = Settings.System.getFloat(getActivity()
+                .getContentResolver(), Settings.System.NAVIGATION_BAR_WIDTH_LAND, 0f);
+        mWidthLand = (SeekBarPreference) findPreference("width_land");
+        mWidthLand.setInitValue((int) (defaultLand * 2.5f));
+
         if (!Utils.isPhone(getActivity())) {
             PreferenceCategory dimenCategory = (PreferenceCategory) findPreference(KEY_DIMEN_OPTIONS);
             if (mNavigationBarWidth != null)
                 dimenCategory.removePreference(mNavigationBarWidth);
+            if (mWidthPort != null)
+                dimenCategory.removePreference(mWidthPort);
+            if (mWidthLand != null)
+                dimenCategory.removePreference(mWidthLand);
         } else {
             mNavigationBarWidth.setOnPreferenceChangeListener(this);
+            mWidthPort.setOnPreferenceChangeListener(this);
+            mWidthLand.setOnPreferenceChangeListener(this);
         }
-
         setHasOptionsMenu(true);
+        mCheckPreferences = true;
+        return prefs;
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -110,7 +137,6 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
             case R.id.reset:
                 Settings.System.putInt(getActivity().getContentResolver(),
                         Settings.System.NAVIGATION_BAR_GLOW_TINT, 0xffffffff);
-
                 refreshSettings();
                 return true;
             case R.id.reset_dimen:
@@ -129,7 +155,6 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
                 mNavigationBarHeight.setValue("48");
                 mNavigationBarHeightLandscape.setValue("48");
                 mNavigationBarWidth.setValue("42");
-
                 refreshSettings();
                 return true;
              default:
@@ -145,6 +170,9 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (!mCheckPreferences) {
+            return false;
+        }
         if (preference == mNavigationBarGlowColor) {
             String hex = ColorPickerPreference.convertToARGB(
                     Integer.valueOf(String.valueOf(newValue)));
@@ -172,8 +200,17 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
             int dp = Integer.parseInt(newVal);
             int height = mapChosenDpToPixels(dp);
             Settings.System.putInt(getContentResolver(),
-                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
-                    height);
+                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE, height);
+            return true;
+        } else if (preference == mWidthPort) {
+            float val = Float.parseFloat((String) newValue);
+            Settings.System.putFloat(getActivity().getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_WIDTH_PORT, val * 0.4f);
+            return true;
+        } else if (preference == mWidthLand) {
+            float val = Float.parseFloat((String) newValue);
+            Settings.System.putFloat(getActivity().getContentResolver(),
+                    Settings.System.NAVIGATION_BAR_WIDTH_LAND, val * 0.4f);
             return true;
         }
         return false;
@@ -195,6 +232,8 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
                 return getResources().getDimensionPixelSize(R.dimen.navigation_bar_30);
             case 24:
                 return getResources().getDimensionPixelSize(R.dimen.navigation_bar_24);
+            case 0:
+                return 0;
         }
         return -1;
     }
@@ -203,5 +242,4 @@ public class NavbarStyleDimenSettings extends SettingsPreferenceFragment impleme
     public void onResume() {
         super.onResume();
     }
-
 }

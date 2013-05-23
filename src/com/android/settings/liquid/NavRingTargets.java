@@ -85,6 +85,8 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
     private File customnavImage;
     private File customnavTemp;
 
+    private boolean mCheckPreferences;
+
     CheckBoxPreference mEnableNavringLong;
     ListPreference mNavRingButtonQty;
 
@@ -100,10 +102,11 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        createCustomLockscreenView();
+        createCustomView();
     }
 
-    private PreferenceScreen createCustomLockscreenView() {
+    private PreferenceScreen createCustomView() {
+        mCheckPreferences = false;
         PreferenceScreen prefs = getPreferenceScreen();
         if (prefs != null) {
             prefs.removeAll();
@@ -249,6 +252,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
 
         }
         setHasOptionsMenu(true);
+        mCheckPreferences = true;
         return prefs;
     }
 
@@ -272,7 +276,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
                 Settings.System.putInt(getActivity().getContentResolver(),
                         Settings.System.SYSTEMUI_NAVRING_LONG_ENABLE, 0);
 
-                createCustomLockscreenView();
+                createCustomView();
 
              default:
                 return super.onContextItemSelected(item);
@@ -282,7 +286,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
     @Override
     public void onResume() {
         super.onResume();
-        createCustomLockscreenView();
+        createCustomView();
     }
 
     @Override
@@ -293,7 +297,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
             Settings.System.putInt(getActivity().getContentResolver(),
                     Settings.System.SYSTEMUI_NAVRING_LONG_ENABLE,
                     ((CheckBoxPreference) preference).isChecked() ? 1 : 0);
-            createCustomLockscreenView();
+            createCustomView();
             return true;
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
@@ -301,15 +305,16 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        boolean result = false;
-
+        if (!mCheckPreferences) {
+            return false;
+        }
         if (preference == mNavRingButtonQty) {
             int val = Integer.parseInt((String) newValue);
             Settings.System.putInt(getActivity().getContentResolver(),
                     Settings.System.SYSTEMUI_NAVRING_AMOUNT, val);
             resetNavRing();
             resetNavRingLong();
-            createCustomLockscreenView();
+            createCustomView();
             return true;
         } else if ((preference.getKey().startsWith("interface_navring_release"))
                 || (preference.getKey().startsWith("interface_navring_long"))) {
@@ -341,7 +346,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
                             Settings.System.NAVRING_CUSTOM_APP_ICONS[index], "");
                 }
             }
-            createCustomLockscreenView();
+            createCustomView();
             return true;
         }
         return false;
@@ -411,12 +416,14 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
                     return getResources().getString(R.string.ring_vib_silent);
             else if (uri.equals("**kill**"))
                     return getResources().getString(R.string.kill_app);
+            else if (uri.equals("**widgets**"))
+                    return getResources().getString(R.string.widgets);
             else if (uri.equals("**lastapp**"))
                     return getResources().getString(R.string.lastapp);
             else if (uri.equals("**screenoff**"))
                     return getResources().getString(R.string.screen_off);
             else if (uri.equals("**power**"))
-                    return getResources().getString(R.string.menu_power);
+                    return getResources().getString(R.string.power);
             else if (uri.equals("**assist**"))
                     return getResources().getString(R.string.google_now);
         } else {
@@ -458,6 +465,8 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_navbar_ring_vib_silent", null, null);
         } else if (uri.equals("**kill**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_navbar_killtask", null, null);
+        } else if (uri.equals("**widgets**")) {
+                resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_navbar_widgets", null, null);
         } else if (uri.equals("**lastapp**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_navbar_lastapp", null, null);
         } else if (uri.equals("**screenoff**")) {
@@ -560,7 +569,7 @@ public class NavRingTargets extends SettingsPreferenceFragment implements
                                 + getResources().getString(
                                         R.string.custom_app_icon_successfully),
                         Toast.LENGTH_LONG).show();
-                createCustomLockscreenView();
+                createCustomView();
             }
         } else if (resultCode == Activity.RESULT_CANCELED && data != null) {
 

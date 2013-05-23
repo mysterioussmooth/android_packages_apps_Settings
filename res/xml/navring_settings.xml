@@ -33,6 +33,7 @@
         <CheckBoxPreference
             android:key="enable_navring_long"
             android:title="@string/navring_enable_long" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

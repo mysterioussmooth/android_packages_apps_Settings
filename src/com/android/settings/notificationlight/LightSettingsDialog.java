@@ -17,18 +17,24 @@
 
 package com.android.settings.notificationlight;
 
-import java.util.ArrayList;
-
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.InputFilter;
+import android.text.InputFilter.LengthFilter;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -37,17 +43,20 @@ import android.widget.TextView;
 
 import com.android.settings.R;
 import com.android.settings.notificationlight.ColorPickerView.OnColorChangedListener;
-import net.margaritov.preference.colorpicker.ColorPickerPreference;
+
+import java.util.ArrayList;
+import java.util.IllegalFormatException;
+import java.util.Locale;
 
 public class LightSettingsDialog extends AlertDialog implements
-        ColorPickerView.OnColorChangedListener {
+        ColorPickerView.OnColorChangedListener, TextWatcher, OnFocusChangeListener {
+
+    private final static String STATE_KEY_COLOR = "LightSettingsDialog:color";
 
     private ColorPickerView mColorPicker;
 
-    private ColorPanelView mOldColor;
+    private EditText mHexColorInput;
     private ColorPanelView mNewColor;
-    private EditText mHex;
-    private Button mSetButton;
     private Spinner mPulseSpeedOn;
     private Spinner mPulseSpeedOff;
     private LayoutInflater mInflater;
@@ -101,32 +110,13 @@ public class LightSettingsDialog extends AlertDialog implements
         View layout = mInflater.inflate(R.layout.dialog_light_settings, null);
 
         mColorPicker = (ColorPickerView) layout.findViewById(R.id.color_picker_view);
-        mOldColor = (ColorPanelView) layout.findViewById(R.id.old_color_panel);
-        mNewColor = (ColorPanelView) layout.findViewById(R.id.new_color_panel);
-        mHex = (EditText) layout.findViewById(R.id.hex);
-        mSetButton = (Button) layout.findViewById(R.id.enter);
-
-        ((LinearLayout) mOldColor.getParent()).setPadding(Math
-                .round(mColorPicker.getDrawingOffset()), 0, Math
-                .round(mColorPicker.getDrawingOffset()), 0);
+        mHexColorInput = (EditText) layout.findViewById(R.id.hex_color_input);
+        mNewColor = (ColorPanelView) layout.findViewById(R.id.color_panel);
 
         mColorPicker.setOnColorChangedListener(this);
-        mOldColor.setColor(color);
         mColorPicker.setColor(color, true);
-        mHex.setText(ColorPickerPreference.convertToARGB(color));
-        mSetButton.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                String text = mHex.getText().toString();
-                try {
-                    int newColor = ColorPickerPreference.convertToColorInt(text);
-                    mColorPicker.setColor(newColor, true);
-                } catch (Exception e) {
-                }
-            }
-        });
-
+        mHexColorInput.setOnFocusChangeListener(this);
         mPulseSpeedOn = (Spinner) layout.findViewById(R.id.on_spinner);
         PulseSpeedAdapter pulseSpeedAdapter = new PulseSpeedAdapter(
                 R.array.notification_pulse_length_entries,
@@ -163,12 +153,26 @@ public class LightSettingsDialog extends AlertDialog implements
     };
 
     @Override
+    public Bundle onSaveInstanceState() {
+        Bundle state = super.onSaveInstanceState();
+        state.putInt(STATE_KEY_COLOR, getColor());
+        return state;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+        mColorPicker.setColor(state.getInt(STATE_KEY_COLOR), true);
+    }
+
+    @Override
     public void onColorChanged(int color) {
+        final boolean hasAlpha = mColorPicker.isAlphaSliderVisible();
+        final String format = hasAlpha ? "%08x" : "%06x";
+        final int mask = hasAlpha ? 0xFFFFFFFF : 0x00FFFFFF;
+
         mNewColor.setColor(color);
-        try {
-            mHex.setText(ColorPickerPreference.convertToARGB(color));
-        } catch (Exception e) {
-        }
+        mHexColorInput.setText(String.format(Locale.US, format, color & mask));
 
         if (mListener != null) {
             mListener.onColorChanged(color);
@@ -176,6 +180,7 @@ public class LightSettingsDialog extends AlertDialog implements
     }
 
     public void setAlphaSliderVisible(boolean visible) {
+        mHexColorInput.setFilters(new InputFilter[] { new InputFilter.LengthFilter(visible ? 8 : 6) } );
         mColorPicker.setAlphaSliderVisible(visible);
     }
 
@@ -183,19 +188,12 @@ public class LightSettingsDialog extends AlertDialog implements
         return mColorPicker.getColor();
     }
 
-    public void onClick(View v) {
-        String text = mHex.getText().toString();
-        try {
-            int newColor = ColorPickerPreference.convertToColorInt(text);
-            mColorPicker.setColor(newColor, true);
-        } catch (Exception e) {
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     public int getPulseSpeedOn() {
         return ((Pair<String, Integer>) mPulseSpeedOn.getSelectedItem()).second;
     }
 
+    @SuppressWarnings("unchecked")
     public int getPulseSpeedOff() {
         // return 0 if 'Always on' is selected
         return getPulseSpeedOn() == 1 ? 0 : ((Pair<String, Integer>) mPulseSpeedOff.getSelectedItem()).second;
@@ -281,4 +279,45 @@ public class LightSettingsDialog extends AlertDialog implements
             return view;
         }
     }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String hexColor = mHexColorInput.getText().toString();
+        if (!hexColor.isEmpty()) {
+            try {
+                int color = Color.parseColor('#' + hexColor);
+                if (!mColorPicker.isAlphaSliderVisible()) {
+                    color |= 0xFF000000; // set opaque
+                }
+                mColorPicker.setColor(color);
+                mNewColor.setColor(color);
+                if (mListener != null) {
+                    mListener.onColorChanged(color);
+                }
+            } catch (IllegalArgumentException ex) {
+                // Number format is incorrect, ignore
+            }
+        }
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            mHexColorInput.removeTextChangedListener(this);
+            InputMethodManager inputMethodManager = (InputMethodManager) getContext()
+                    .getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        } else {
+            mHexColorInput.addTextChangedListener(this);
+        }
+    }
 }
+

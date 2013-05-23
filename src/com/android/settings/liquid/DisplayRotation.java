@@ -16,6 +16,7 @@
 
 package com.android.settings.liquid;
 
+import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +29,7 @@ import android.provider.Settings;
 import com.android.internal.view.RotationPolicy;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
+import com.android.settings.Utils;
 
 public class DisplayRotation extends SettingsPreferenceFragment implements OnPreferenceChangeListener {
     private static final String TAG = "DisplayRotation";
@@ -72,9 +74,6 @@ public class DisplayRotation extends SettingsPreferenceFragment implements OnPre
         mAccelerometer = (CheckBoxPreference) findPreference(KEY_ACCELEROMETER);
         mAccelerometer.setPersistent(false);
 
-        if (hasRotationLock) {
-                mAccelerometer.setEnabled(false);
-        }
         mRotation0Pref = (CheckBoxPreference) prefSet.findPreference(ROTATION_0_PREF);
         mRotation90Pref = (CheckBoxPreference) prefSet.findPreference(ROTATION_90_PREF);
         mRotation180Pref = (CheckBoxPreference) prefSet.findPreference(ROTATION_180_PREF);
@@ -89,13 +88,22 @@ public class DisplayRotation extends SettingsPreferenceFragment implements OnPre
         mRotation180Pref.setChecked((mode & ROTATION_180_MODE) != 0);
         mRotation270Pref.setChecked((mode & ROTATION_270_MODE) != 0);
 
-	mSwapVolumeButtons = (CheckBoxPreference) prefSet.findPreference(KEY_SWAP_VOLUME_BUTTONS);
+        mSwapVolumeButtons = (CheckBoxPreference) prefSet.findPreference(KEY_SWAP_VOLUME_BUTTONS);
+        if (mSwapVolumeButtons != null) {
+            int swapVolumeKeys = Settings.System.getInt(getContentResolver(),
+                    Settings.System.SWAP_VOLUME_KEYS_BY_ROTATE, 0);
+            mSwapVolumeButtons.setChecked(swapVolumeKeys > 0);
+        }
 
-        int swapVolumeKeys = Settings.System.getInt(getContentResolver(),
-                Settings.System.SWAP_VOLUME_KEYS_BY_ROTATE, 0);
-
-        mSwapVolumeButtons.setChecked(swapVolumeKeys != 0);
-
+        if (hasRotationLock) {
+            // Disable accelerometer checkbox, but leave others enabled
+            mAccelerometer.setEnabled(false);
+            mSwapVolumeButtons.setDependency(null);
+            mRotation0Pref.setDependency(null);
+            mRotation90Pref.setDependency(null);
+            mRotation180Pref.setDependency(null);
+            mRotation270Pref.setDependency(null);
+        }
     }
 
     @Override
@@ -151,9 +159,12 @@ public class DisplayRotation extends SettingsPreferenceFragment implements OnPre
                     Settings.System.ACCELEROMETER_ROTATION_ANGLES, mode);
             return true;
         } else if (preference == mSwapVolumeButtons) {
-            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(),
+            Context context = getActivity().getApplicationContext();
+            Settings.System.putInt(context.getContentResolver(),
                     Settings.System.SWAP_VOLUME_KEYS_BY_ROTATE,
-	            mSwapVolumeButtons.isChecked() ? 1 : 0);
+                    mSwapVolumeButtons.isChecked()
+                    ? (Utils.isTablet(context) ? 2 : 1)
+                    : 0);
         }
 
         return super.onPreferenceTreeClick(preferenceScreen, preference);

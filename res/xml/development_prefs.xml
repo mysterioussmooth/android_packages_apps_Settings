@@ -15,29 +15,30 @@
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-        android:title="@string/development_settings_title">
+    android:title="@string/development_settings_title">
 
     <com.android.settings.BugreportPreference
-            android:key="bugreport"
-            android:title="@*android:string/bugreport_title"
-            android:dialogTitle="@*android:string/bugreport_title" />
+        android:key="bugreport"
+        android:title="@*android:string/bugreport_title"
+        android:dialogTitle="@*android:string/bugreport_title" />
+
+    <ListPreference
+        android:key="media_scanner_on_boot"
+        android:title="@string/media_scanner_on_boot_title"
+        android:persistent="false"
+        android:entries="@array/media_scanner_on_boot_entries"
+        android:entryValues="@array/media_scanner_on_boot_values" />
 
     <PreferenceScreen
-            android:key="local_backup_password"
-            android:title="@string/local_backup_password_title"
-            android:summary="@string/local_backup_password_summary_none"
-            android:persistent="false" >
+        android:key="local_backup_password"
+        android:title="@string/local_backup_password_title"
+        android:summary="@string/local_backup_password_summary_none"
+        android:persistent="false" >
         <intent
-                android:action="android.settings.privacy.SET_FULL_BACKUP_PASSWORD"
-                android:targetPackage="com.android.settings"
-                android:targetClass="com.android.settings.SetFullBackupPassword" />
+            android:action="android.settings.privacy.SET_FULL_BACKUP_PASSWORD"
+            android:targetPackage="com.android.settings"
+            android:targetClass="com.android.settings.SetFullBackupPassword" />
     </PreferenceScreen>
-
-    <CheckBoxPreference
-        android:key="adb_over_network"
-        android:title="@string/adb_over_network"
-        android:summary="@string/adb_over_network_summary"
-        android:dependency="enable_adb"/>
 
     <CheckBoxPreference
         android:key="keep_screen_on"
@@ -64,7 +65,7 @@
         android:entryValues="@array/root_access_values" />
 
     <PreferenceCategory android:key="debug_debugging_category"
-            android:title="@string/debug_debugging_category">
+        android:title="@string/debug_debugging_category">
 
         <CheckBoxPreference
             android:key="enable_adb"
@@ -75,6 +76,12 @@
             android:key="adb_notify"
             android:title="@string/adb_notify"
             android:summary="@string/adb_notify_summary"
+            android:dependency="enable_adb"/>
+
+        <CheckBoxPreference
+            android:key="adb_over_network"
+            android:title="@string/adb_over_network"
+            android:summary="@string/adb_over_network_summary"
             android:dependency="enable_adb"/>
 
         <com.android.settings.HostnamePreference
@@ -99,7 +106,7 @@
             android:summary="@string/allow_mock_location_summary"/>
 
         <PreferenceScreen android:key="debug_app"
-                android:title="@string/debug_app" />
+            android:title="@string/debug_app" />
 
         <CheckBoxPreference
             android:key="wait_for_debugger"
@@ -114,7 +121,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="debug_input_category"
-            android:title="@string/debug_input_category">
+        android:title="@string/debug_input_category">
 
         <CheckBoxPreference
             android:key="show_touches"
@@ -129,7 +136,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="debug_drawing_category"
-            android:title="@string/debug_drawing_category">
+        android:title="@string/debug_drawing_category">
 
         <CheckBoxPreference
             android:key="debug_layout"
@@ -202,7 +209,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="debug_monitoring_category"
-            android:title="@string/debug_monitoring_category">
+        android:title="@string/debug_monitoring_category">
 
         <CheckBoxPreference
             android:key="strict_mode"
@@ -234,7 +241,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="debug_applications_category"
-            android:title="@string/debug_applications_category">
+        android:title="@string/debug_applications_category">
 
         <CheckBoxPreference
             android:key="immediately_destroy_activities"

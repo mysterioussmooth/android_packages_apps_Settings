@@ -49,6 +49,7 @@ import android.util.Log;
 import com.android.internal.view.RotationPolicy;
 import com.android.settings.DreamSettings;
 import com.android.settings.liquid.DisplayRotation;
+import com.android.settings.Utils;
 
 import java.util.ArrayList;
 
@@ -56,7 +57,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String TAG = "DisplaySettings";
 
-    /** If there is no setting in the provider, use this. */
+    // If there is no setting in the provider, use this
     private static final int FALLBACK_SCREEN_TIMEOUT_VALUE = 30000;
 
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout";
@@ -95,11 +96,10 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     private ListPreference mCrtMode;
     private CheckBoxPreference mCrtOff;
     private CheckBoxPreference mSwapVolumeButtons;
-
     private boolean mIsCrtOffChecked = false;
 
     private final Configuration mCurConfig = new Configuration();
-    
+
     private ListPreference mScreenTimeoutPreference;
     private Preference mScreenSaverPreference;
 
@@ -358,14 +358,14 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
     int floatToIndex(float val) {
         String[] indices = getResources().getStringArray(R.array.entryvalues_font_size);
         float lastVal = Float.parseFloat(indices[0]);
-        for (int i=1; i<indices.length; i++) {
+        for (int i = 1; i < indices.length; i++) {
             float thisVal = Float.parseFloat(indices[i]);
             if (val < (lastVal + (thisVal-lastVal)*.5f)) {
-                return i-1;
+                return i - 1;
             }
             lastVal = thisVal;
         }
-        return indices.length-1;
+        return indices.length - 1;
     }
     
     public void readFontSizePreference(ListPreference pref) {
@@ -488,6 +488,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
                     mCrtOff.isChecked() ? 1 : 0);
             return true;
         }
+
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 
@@ -518,6 +519,7 @@ public class DisplaySettings extends SettingsPreferenceFragment implements
         if (KEY_FONT_SIZE.equals(key)) {
             writeFontSizePreference(objValue);
         }
+
         return true;
     }
 

@@ -34,7 +34,6 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,7 +70,6 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
     private static final String KEY_DEVICE_MEMORY = "device_memory";
 
     static final int TAPS_TO_BE_A_DEVELOPER = 7;
-
     long[] mHits = new long[3];
     int mDevHitCountdown;
     Toast mDevHitToast;
@@ -204,7 +202,6 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
                         getActivity().getSharedPreferences(DevelopmentSettings.PREF_FILE,
                                 Context.MODE_PRIVATE).edit().putBoolean(
                                         DevelopmentSettings.PREF_SHOW, true).apply();
-
                         if (mDevHitToast != null) {
                             mDevHitToast.cancel();
                         }
@@ -380,8 +377,8 @@ public class DeviceInfoSettings extends SettingsPreferenceFragment {
 
         try {
             /* The expected /proc/cpuinfo output is as follows:
-             * Processor    : ARMv7 Processor rev 2 (v7l)
-             * BogoMIPS    : 272.62
+             * Processor: ARMv7 Processor rev 2 (v7l)
+             * BogoMIPS: 272.62
              */
             String firstLine = readLine(FILENAME_PROC_CPUINFO);
             if (firstLine != null) {

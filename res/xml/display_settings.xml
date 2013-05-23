@@ -34,6 +34,7 @@
             android:entries="@array/entries_system_power_crt_mode"
             android:entryValues="@array/values_system_power_crt_mode"
             android:dependency="system_power_crt_screen_off" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -45,6 +46,7 @@
             android:title="@string/brightness"
             android:summary="@string/custom_brightness_summary"
             android:dialogTitle="@string/brightness" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -76,6 +78,7 @@
             android:key="wallpaper"
             android:title="@string/wallpaper_settings_title"
             android:fragment="com.android.settings.WallpaperTypeSettings" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -98,6 +101,7 @@
             android:title="@string/touchkey_timeout_title"
             android:entries="@array/entries_touchkey_timeout"
             android:entryValues="@array/values_touchkey_timeout" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -108,6 +112,7 @@
             android:key="display_rotation"
             android:fragment="com.android.settings.liquid.DisplayRotation"
             android:title="@string/display_rotation_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -125,6 +130,7 @@
             android:title="@string/wakeup_when_plugged_unplugged_title"
             android:summary="@string/wakeup_when_plugged_unplugged_summary"
             android:defaultValue="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -135,6 +141,7 @@
             android:key="wifi_display"
             android:title="@string/wifi_display_settings_title"
             android:fragment="com.android.settings.wfd.WifiDisplaySettings" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

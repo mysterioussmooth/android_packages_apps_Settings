@@ -35,8 +35,6 @@ import android.view.MenuItem;
 
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.R;
-import com.android.settings.Utils;
-import com.android.settings.util.Helpers;
 import com.android.settings.widget.SeekBarPreference;
 
 import net.margaritov.preference.colorpicker.ColorPickerPreference;
@@ -49,6 +47,8 @@ public class StatusBarStyle extends SettingsPreferenceFragment implements
     private static final String PREF_STATUS_BAR_ALPHA_MODE = "status_bar_alpha_mode";
     private static final String PREF_STATUS_BAR_COLOR = "status_bar_color";
 
+    private boolean mCheckPreferences;
+
     private SeekBarPreference mStatusbarTransparency;
     private ColorPickerPreference mStatusBarColor;
     private ListPreference mAlphaMode;
@@ -59,7 +59,8 @@ public class StatusBarStyle extends SettingsPreferenceFragment implements
         refreshSettings();
     }
 
-    public void refreshSettings() {
+    private PreferenceScreen refreshSettings() {
+        mCheckPreferences = false;
         PreferenceScreen prefs = getPreferenceScreen();
         if (prefs != null) {
             prefs.removeAll();
@@ -77,8 +78,11 @@ public class StatusBarStyle extends SettingsPreferenceFragment implements
         if (intColor == -2) {
             intColor = getResources().getColor(
                     com.android.internal.R.color.black);
+            mStatusBarColor.setSummary(getResources().getString(R.string.color_default));
+        } else {
+            String hexColor = String.format("#%08x", (0xffffffff & intColor));
+            mStatusBarColor.setSummary(hexColor);
         }
-        String hexColor = String.format("#%08x", (0xffffffff & intColor));
         mStatusBarColor.setNewPreviewColor(intColor);
 
         float statBarTransparency = 0.0f;
@@ -102,6 +106,8 @@ public class StatusBarStyle extends SettingsPreferenceFragment implements
         mAlphaMode.setOnPreferenceChangeListener(this);
 
         setHasOptionsMenu(true);
+        mCheckPreferences = true;
+        return prefs;
     }
 
 
@@ -138,6 +144,9 @@ public class StatusBarStyle extends SettingsPreferenceFragment implements
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (!mCheckPreferences) {
+            return false;
+        }
         if (preference == mStatusbarTransparency) {
             float valStat = Float.parseFloat((String) newValue);
             Settings.System.putFloat(getActivity().getContentResolver(),

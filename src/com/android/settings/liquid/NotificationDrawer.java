@@ -64,6 +64,7 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
 
     private static final String TAG = "NotificationDrawer";
 
+    private static final String PREF_NOTIFICATION_SETTINGS_BTN = "notification_settings_btn";
     private static final String KEY_NOTIFICATION_BEHAVIOUR = "notifications_behaviour";
     private static final String KEY_NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid";
     private static final String PREF_NOTIFICATION_WALLPAPER = "notification_wallpaper";
@@ -71,6 +72,7 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
     private static final String PREF_NOTIFICATION_WALLPAPER_ALPHA = "notification_wallpaper_alpha";
     private static final String PREF_NOTIFICATION_ALPHA = "notification_alpha";
 
+    private CheckBoxPreference mSettingsBtn;
     private ListPreference mNotificationsBeh;
     private PreferenceScreen mPrefSet;
     private CheckBoxPreference mShowWifiName;
@@ -104,6 +106,10 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
 
         customnavTemp = new File(getActivity().getFilesDir()+"/notification_wallpaper_temp.jpg");
         customnavTempLandscape = new File(getActivity().getFilesDir()+"/notification_wallpaper_temp_landscape.jpg");
+
+        mSettingsBtn = (CheckBoxPreference) findPreference(PREF_NOTIFICATION_SETTINGS_BTN);
+        mSettingsBtn.setChecked(Settings.System.getInt(getActivity().getContentResolver(),
+                Settings.System.NOTIFICATION_SETTINGS_BUTTON, 0) == 1);
 
         int CurrentBeh = Settings.System.getInt(getActivity().getContentResolver(), Settings.System.NOTIFICATIONS_BEHAVIOUR, 0);
         mNotificationsBeh = (ListPreference) findPreference(KEY_NOTIFICATION_BEHAVIOUR);
@@ -279,6 +285,11 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
             Settings.System.putFloat(getActivity().getContentResolver(),
                     Settings.System.NOTIF_WALLPAPER_ALPHA, valNav / 100);
             return true;
+        } else if (preference == mSettingsBtn) {
+            Settings.System.putInt(getActivity().getContentResolver(),
+                    Settings.System.NOTIFICATION_SETTINGS_BUTTON,
+                    mSettingsBtn.isChecked() ? 1 : 0);
+            return true;
         } else if (preference == mNotificationsBeh) {
             String val = (String) newValue;
             Settings.System.putInt(getContentResolver(), 
@@ -414,3 +425,4 @@ public class NotificationDrawer extends SettingsPreferenceFragment implements
         return false;
     }
 }
+

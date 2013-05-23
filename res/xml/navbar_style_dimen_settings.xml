@@ -40,6 +40,15 @@
             android:key="navigation_bar_width"
             android:title="@string/navigation_bar_width_title"
             android:summary="@string/navigation_bar_width_summary" />
+
+        <com.android.settings.widget.SeekBarPreference
+            android:key="width_port"
+            android:title="@string/width_port_title" />
+
+        <com.android.settings.widget.SeekBarPreference
+            android:key="width_land"
+            android:title="@string/width_land_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -57,9 +66,10 @@
             android:title="@string/nav_bar_button_style" />
 
         <net.margaritov.preference.colorpicker.ColorPickerPreference
-                    android:key="nav_button_glow_color"
-                    android:title="@string/navigation_bar_glow_tint_title"
-                    android:defaultValue="0xffffffff" />
+            android:key="nav_button_glow_color"
+            android:title="@string/navigation_bar_glow_tint_title"
+            android:defaultValue="0xffffffff" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

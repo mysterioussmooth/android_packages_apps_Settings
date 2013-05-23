@@ -30,6 +30,7 @@
         <CheckBoxPreference
             android:key="enable_navbar_long"
             android:title="@string/navbar_enable_long" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

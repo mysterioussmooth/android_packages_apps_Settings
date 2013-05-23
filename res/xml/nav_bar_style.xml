@@ -20,7 +20,6 @@
     xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
 
     <PreferenceCategory
-        android:key="navbar_style_cat"
         android:title="@string/general_settings_title">
 
         <net.margaritov.preference.colorpicker.ColorPickerPreference
@@ -38,6 +37,7 @@
             android:title="@string/nav_bar_alpha_mode_text_title"
             android:entries="@array/entries_nav_bar_alpha_mode"
             android:entryValues="@array/values_nav_bar_alpha_mode" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

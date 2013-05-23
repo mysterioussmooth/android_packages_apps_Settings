@@ -34,6 +34,7 @@
             android:title="@string/ram_bar_mode_title"
             android:entries="@array/entries_ram_bar_mode"
             android:entryValues="@array/values_ram_bar_mode" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

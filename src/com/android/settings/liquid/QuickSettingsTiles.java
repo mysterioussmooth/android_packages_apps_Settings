@@ -18,18 +18,19 @@ package com.android.settings.liquid;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -42,29 +43,37 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.settings.R;
 import com.android.settings.Utils;
+import com.android.settings.liquid.QuickSettingsUtil;
 import com.android.settings.liquid.QuickSettingsUtil.TileInfo;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class QuickSettingsTiles extends Fragment {
+    private static final String TAG = "QuickSettingsTiles";
 
     private static final int MENU_RESET = Menu.FIRST;
+
+    public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
+    public static final String FAST_CHARGE_FILE = "force_fast_charge";
 
     DraggableGridView mDragView;
     private ViewGroup mContainer;
     LayoutInflater mInflater;
     Resources mSystemUiResources;
-    SharedPreferences prefs;
     Resources res;
     TileAdapter mTileAdapter;
     static ArrayList<String> curr;
     Context mContext;
 
     private int mTileTextSize;
+    public HashMap<String, String> tilesContentMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,7 +83,6 @@ public class QuickSettingsTiles extends Fragment {
         mContext = getActivity();
         PackageManager pm = mContext.getPackageManager();
         res = mContext.getResources();
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         if (pm != null) {
             try {
                 mSystemUiResources = pm.getResourcesForApplication("com.android.systemui");
@@ -82,17 +90,23 @@ public class QuickSettingsTiles extends Fragment {
                 mSystemUiResources = null;
             }
         }
-        int colCount = Settings.System.getInt(getActivity().getContentResolver(),
+        int colCount = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.QUICK_TILES_PER_ROW, 3);
         updateTileTextSize(colCount);
         return mDragView;
     }
 
-    void cleanTilesContent(ArrayList<String> tiles){
-        Map<String, ?> allContacts = prefs.getAll();
-        for (String tileID : allContacts.keySet()){
-            if (!tiles.contains(tileID)){
-                prefs.edit().remove(tileID).apply();
+    void loadTilesContent(ArrayList<String> tiles){
+        if (tilesContentMap != null) tilesContentMap.clear();
+        tilesContentMap = new HashMap<String, String>();
+        String tilesContentString = Settings.System.getString(
+                    mContext.getContentResolver(), Settings.System.QUICK_SETTINGS_TILE_CONTENT);
+        if (tilesContentString == null || tilesContentString.equals("")) return;
+        for (String tileContentString : tilesContentString.split("\\|")) {
+            StringTokenizer st = new StringTokenizer(tileContentString,"=");
+            String tileName = st.nextToken();
+            if (tiles.contains(tileName)) {
+                tilesContentMap.put(tileName, st.nextToken());
             }
         }
     }
@@ -101,25 +115,27 @@ public class QuickSettingsTiles extends Fragment {
         mDragView.removeAllViews();
         String allTilesString = QuickSettingsUtil.getCurrentTiles(mContext);
         if (!allTilesString.equals("")){
+            int customShortcutCount = 0;
             ArrayList<String> tiles = QuickSettingsUtil.getTileListFromString(allTilesString);
-            cleanTilesContent(tiles);
+            loadTilesContent(tiles);
             for (String tileindex : tiles) {
-                StringTokenizer st = new StringTokenizer(tileindex,"+");
+                StringTokenizer st = new StringTokenizer(tileindex, "+");
                 QuickSettingsUtil.TileInfo tile = QuickSettingsUtil.TILES.get(st.nextToken());
-                String tileID;
-                String tileString = res.getString(tile.getTitleResId());
-                if (st.hasMoreTokens()) {
-                    tileID = st.nextToken();
-                    if (tileindex.startsWith(QuickSettingsUtil.TILE_FAVCONTACT)){
-                        String newTileString = prefs.getString(tileindex, null);
-                        if (newTileString != null) tileString = newTileString;
-                        else tileString += " "+tileID;
+                if (tile != null) {
+                    String tileString = res.getString(tile.getTitleResId());
+                    if (st.hasMoreTokens())
+                    if (tileindex.startsWith(QuickSettingsUtil.TILE_CUSTOMSHORTCUT)) {
+                            customShortcutCount++;
+                            String newTileString = tilesContentMap.get(tileindex);
+                            if (newTileString != null) tileString = newTileString;
+                            else tileString += " " + customShortcutCount;
                     }
+                    addTile(tileString, tile.getIcon(), 0, false);
                 }
-                if (tile != null) addTile(tileString, tile.getIcon(), 0, false);
             }
         }
         addTile(res.getString(R.string.profiles_add), null, R.drawable.ic_menu_add, false);
+        removeUnsupportedTiles();
     }
 
     /**
@@ -150,6 +166,76 @@ public class QuickSettingsTiles extends Fragment {
         mDragView.addView(v, newTile ? mDragView.getChildCount() - 1 : mDragView.getChildCount());
     }
 
+    public void removeUnsupportedTiles() {
+        PackageManager pm = mContext.getPackageManager();
+        ContentResolver resolver = mContext.getContentResolver();
+        // Don't show mobile data options if not supported
+        boolean isMobileData = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        if (!isMobileData) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_MOBILEDATA);
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_WIFIAP);
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NETWORKMODE);
+            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_WIFIAP);
+            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_MOBILEDATA);
+            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_NETWORKMODE);
+        } else {
+            // We have telephony support however, some phones run on networks not supported
+            // by the networkmode tile so remove both it and the associated options list
+            int network_state = -99;
+            try {
+                network_state = Settings.Global.getInt(resolver,
+                        Settings.Global.PREFERRED_NETWORK_MODE);
+            } catch (Settings.SettingNotFoundException e) {
+                Log.e(TAG, "Unable to retrieve PREFERRED_NETWORK_MODE", e);
+            }
+
+            switch (network_state) {
+                // list of supported network modes
+                case Phone.NT_MODE_WCDMA_PREF:
+                case Phone.NT_MODE_WCDMA_ONLY:
+                case Phone.NT_MODE_GSM_UMTS:
+                case Phone.NT_MODE_GSM_ONLY:
+                    break;
+                default:
+                    QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NETWORKMODE);
+                    break;
+            }
+        }
+
+        // Don't show the bluetooth options if not supported
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_BLUETOOTH);
+        }
+
+        // Dont show the profiles tile if profiles are disabled
+        if (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) != 1) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_PROFILE);
+        }
+
+        // Dont show the NFC tile if not supported
+        if (NfcAdapter.getDefaultAdapter(mContext) == null) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NFC);
+        }
+
+        // Dont show the LTE tile if not supported
+        if (!deviceSupportsLte()) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_LTE);
+        }
+
+        // Dont show the torch tile if not supported
+        if (!mContext.getResources().getBoolean(R.bool.has_led_flash)) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_TORCH);
+        }
+
+        // Dont show fast charge tile if not supported
+        // Dont show fast charge tile if not supported
+        File fastcharge = new File(FAST_CHARGE_DIR, FAST_CHARGE_FILE);
+        if (!fastcharge.exists()) {
+            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_FCHARGE);
+        }
+
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -158,26 +244,26 @@ public class QuickSettingsTiles extends Fragment {
         settingsObserver.observe();
         mDragView.setOnRearrangeListener(new OnRearrangeListener() {
             public void onRearrange(int oldIndex, int newIndex) {
-                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(getActivity()));
+                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(mContext));
                 String oldTile = curr.get(oldIndex);
                 curr.remove(oldIndex);
                 curr.add(newIndex, oldTile);
-                QuickSettingsUtil.saveCurrentTiles(getActivity(), QuickSettingsUtil.getTileStringFromList(curr));
+                QuickSettingsUtil.saveCurrentTiles(mContext, QuickSettingsUtil.getTileStringFromList(curr));
             }
             @Override
             public void onDelete(int index) {
-                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(getActivity()));
+                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(mContext));
                 curr.remove(index);
-                QuickSettingsUtil.saveCurrentTiles(getActivity(), QuickSettingsUtil.getTileStringFromList(curr));
+                QuickSettingsUtil.saveCurrentTiles(mContext, QuickSettingsUtil.getTileStringFromList(curr));
             }
         });
         mDragView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 if (arg2 != mDragView.getChildCount() - 1) return;
-                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(getActivity()));
+                curr = QuickSettingsUtil.getTileListFromString(QuickSettingsUtil.getCurrentTiles(mContext));
                 mTileAdapter = null;
-                mTileAdapter = new TileAdapter(getActivity(), 0);
+                mTileAdapter = new TileAdapter(mContext, 0);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.tile_choose_title)
                 .setAdapter(mTileAdapter, new DialogInterface.OnClickListener() {
@@ -187,12 +273,13 @@ public class QuickSettingsTiles extends Fragment {
                         for (int i=0; i<curr.size();i++)
                             if (curr.get(i).startsWith(info.getId())) tileOccurencesCount++;
                         info.setOccurences(tileOccurencesCount);
+                        while (curr.contains(info.getId()+"+"+tileOccurencesCount)) tileOccurencesCount++;
                         if (!info.isSingleton()) curr.add(info.getId()+"+"+tileOccurencesCount);
                         else curr.add(info.getId());
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                QuickSettingsUtil.saveCurrentTiles(getActivity(), QuickSettingsUtil.getTileStringFromList(curr));
+                                QuickSettingsUtil.saveCurrentTiles(mContext, QuickSettingsUtil.getTileStringFromList(curr));
                             }
                         }).start();
                         String tileNameDisplay = res.getString(info.getTitleResId());
@@ -209,7 +296,7 @@ public class QuickSettingsTiles extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (Utils.isPhone(getActivity())) {
+        if (Utils.isPhone(mContext)) {
             mContainer.setPadding(20, 0, 0, 0);
         }
     }
@@ -240,7 +327,7 @@ public class QuickSettingsTiles extends Fragment {
         alert.setMessage(R.string.tiles_reset_message);
         alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                QuickSettingsUtil.resetTiles(getActivity());
+                QuickSettingsUtil.resetTiles(mContext);
                 genTiles();
             }
         });
@@ -319,14 +406,13 @@ public class QuickSettingsTiles extends Fragment {
 
         @Override
         public void onChange(boolean selfChange) {
-            String tileContent = Settings.System.getString(
-                    mContext.getContentResolver(), Settings.System.QUICK_SETTINGS_TILE_CONTENT);
-            StringTokenizer st = new StringTokenizer(tileContent,"|");
-            String tile = st.nextToken();
-            String name = st.nextToken();
-            Log.e("QuickSettingsTiles","putting into prefs: "+tile+" , "+name);
-            prefs.edit().putString(tile, name).apply();
             genTiles();
         }
     }
+
+    private boolean deviceSupportsLte() {
+        final TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) || tm.getLteOnGsmMode() != 0;
+    }
+
 }

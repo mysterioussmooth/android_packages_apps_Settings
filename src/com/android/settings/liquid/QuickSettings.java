@@ -16,7 +16,6 @@
 
 package com.android.settings.liquid;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -24,7 +23,6 @@ import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.WifiDisplayStatus;
 import android.net.ConnectivityManager;
-import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -34,17 +32,13 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceScreen;
 import android.preference.PreferenceCategory;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.internal.telephony.Phone;
-import com.android.internal.telephony.PhoneConstants;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,8 +47,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class QuickSettings extends SettingsPreferenceFragment implements OnPreferenceChangeListener {
+    
     private static final String TAG = "QuickSettings";
-
     private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
     private static final String EXP_RING_MODE = "pref_ring_mode";
     private static final String EXP_NETWORK_MODE = "pref_network_mode";
@@ -71,7 +65,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
     private static final String GENERAL_SETTINGS = "pref_general_settings";
     private static final String STATIC_TILES = "static_tiles";
     private static final String DYNAMIC_TILES = "pref_dynamic_tiles";
-
+    private static final String QS_TILES_STYLE = "quicksettings_tiles_style";
+    private static final String TILE_PICKER = "tile_picker";
     public static final String FAST_CHARGE_DIR = "/sys/kernel/fast_charge";
     public static final String FAST_CHARGE_FILE = "force_fast_charge";
 
@@ -90,6 +85,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
     PreferenceCategory mGeneralSettings;
     PreferenceCategory mStaticTiles;
     PreferenceCategory mDynamicTiles;
+    PreferenceScreen mQsTilesStyle;
+    PreferenceScreen mTilePicker;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,25 +107,8 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         mQuickPulldown = (ListPreference) prefSet.findPreference(QUICK_PULLDOWN);
         mNoNotificationsPulldown = (CheckBoxPreference) prefSet.findPreference(NO_NOTIFICATIONS_PULLDOWN);
         mDisablePanel = (CheckBoxPreference) prefSet.findPreference(DISABLE_PANEL);
-        if (!Utils.isPhone(getActivity())) {
-            if(mQuickPulldown != null)
-                mGeneralSettings.removePreference(mQuickPulldown);
-            if(mDisablePanel != null)
-                mGeneralSettings.removePreference(mDisablePanel);
-            if(mNoNotificationsPulldown != null)
-                mGeneralSettings.removePreference(mNoNotificationsPulldown);
-        } else {
-            mQuickPulldown.setOnPreferenceChangeListener(this);
-            int quickPulldownValue = Settings.System.getInt(resolver, Settings.System.QS_QUICK_PULLDOWN, 0);
-            mQuickPulldown.setValue(String.valueOf(quickPulldownValue));
-            updatePulldownSummary(quickPulldownValue);
-
-            mDisablePanel.setChecked(Settings.System.getInt(resolver,
-                Settings.System.QS_DISABLE_PANEL, 0) == 0);
-            mNoNotificationsPulldown.setChecked(Settings.System.getInt(resolver,
-                Settings.System.QS_NO_NOTIFICATION_PULLDOWN, 0) == 1);
-        }
-
+        mQsTilesStyle = (PreferenceScreen) prefSet.findPreference(QS_TILES_STYLE);
+        mTilePicker = (PreferenceScreen) prefSet.findPreference(TILE_PICKER);
         mCollapsePanel = (CheckBoxPreference) prefSet.findPreference(COLLAPSE_PANEL);
         mCollapsePanel.setChecked(Settings.System.getInt(resolver, Settings.System.QS_COLLAPSE_PANEL, 0) == 1);
 
@@ -181,73 +161,26 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
             }
         }
 
-        // Don't show mobile data options if not supported
-        boolean isMobileData = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        if (!isMobileData) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_MOBILEDATA);
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_WIFIAP);
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NETWORKMODE);
-            if(mNetworkMode != null)
-                mStaticTiles.removePreference(mNetworkMode);
-            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_WIFIAP);
-            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_MOBILEDATA);
-            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_NETWORKMODE);
+        if (!Utils.isPhone(getActivity())) {
+            if(mQuickPulldown != null)
+                mGeneralSettings.removePreference(mQuickPulldown);
+            if(mDisablePanel != null)
+                mGeneralSettings.removePreference(mDisablePanel);
+            if(mNoNotificationsPulldown != null)
+                mGeneralSettings.removePreference(mNoNotificationsPulldown);
         } else {
-            // We have telephony support however, some phones run on networks not supported
-            // by the networkmode tile so remove both it and the associated options list
-            int network_state = -99;
-            try {
-                network_state = Settings.Global.getInt(resolver,
-                        Settings.Global.PREFERRED_NETWORK_MODE);
-            } catch (Settings.SettingNotFoundException e) {
-                Log.e(TAG, "Unable to retrieve PREFERRED_NETWORK_MODE", e);
-            }
+            mQuickPulldown.setOnPreferenceChangeListener(this);
+            int quickPulldownValue = Settings.System.getInt(resolver, Settings.System.QS_QUICK_PULLDOWN, 0);
+            mQuickPulldown.setValue(String.valueOf(quickPulldownValue));
+            updatePulldownSummary(quickPulldownValue);
 
-            switch (network_state) {
-                // list of supported network modes
-                case Phone.NT_MODE_WCDMA_PREF:
-                case Phone.NT_MODE_WCDMA_ONLY:
-                case Phone.NT_MODE_GSM_UMTS:
-                case Phone.NT_MODE_GSM_ONLY:
-                    break;
-                default:
-                    QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NETWORKMODE);
-                    mStaticTiles.removePreference(mNetworkMode);
-                    break;
-            }
+            boolean disablePanel = Settings.System.getInt(resolver,
+                Settings.System.QS_DISABLE_PANEL, 0) == 0;
+            mDisablePanel.setChecked(disablePanel);
+            mNoNotificationsPulldown.setChecked(Settings.System.getInt(resolver,
+                Settings.System.QS_NO_NOTIFICATION_PULLDOWN, 0) == 1);
+            setEnablePreferences(disablePanel);
         }
-
-        // Don't show the bluetooth options if not supported
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
-            QuickSettingsUtil.TILES_DEFAULT.remove(QuickSettingsUtil.TILE_BLUETOOTH);
-        }
-
-        // Dont show the profiles tile if profiles are disabled
-        if (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) != 1) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_PROFILE);
-        }
-
-        // Dont show the LTE tile if not supported
-        if (!deviceSupportsLte()) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_LTE);
-        }
-
-        // Dont show the NFC tile if not supported
-        if (NfcAdapter.getDefaultAdapter(getActivity()) == null) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_NFC);
-        }
-
-        // Dont show the torch tile if not supported
-        if (!getResources().getBoolean(R.bool.has_led_flash)) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_TORCH);
-        }
-
-        // Dont show fast charge tile if not supported
-        File fastcharge = new File(FAST_CHARGE_DIR, FAST_CHARGE_FILE);
-        if (!fastcharge.exists()) {
-            QuickSettingsUtil.TILES.remove(QuickSettingsUtil.TILE_FCHARGE);
-        }
-
     }
 
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
@@ -283,6 +216,7 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         } else if (preference == mDisablePanel) {
             Settings.System.putInt(resolver, Settings.System.QS_DISABLE_PANEL,
                     mDisablePanel.isChecked() ? 0 : 1);
+            setEnablePreferences(mDisablePanel.isChecked());
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
@@ -382,13 +316,37 @@ public class QuickSettings extends SettingsPreferenceFragment implements OnPrefe
         return (dm.getWifiDisplayStatus().getFeatureState() != WifiDisplayStatus.FEATURE_STATE_UNAVAILABLE);
     }
 
-    private boolean deviceSupportsLte() {
-        final TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        return (tm.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) || tm.getLteOnGsmMode() != 0;
-    }
-
     private boolean deviceSupportsUsbTether() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return (cm.getTetherableUsbRegexs().length != 0);
+    }
+
+    private void setEnablePreferences(boolean status) {
+        if (mRingMode != null)
+            mRingMode.setEnabled(status);
+        if (mNetworkMode != null)
+            mNetworkMode.setEnabled(status);
+        if (mScreenTimeoutMode != null)
+            mScreenTimeoutMode.setEnabled(status);
+        if (mDynamicAlarm != null)
+            mDynamicAlarm.setEnabled(status);
+        if (mDynamicBugReport != null)
+            mDynamicBugReport.setEnabled(status);
+        if (mDynamicWifi != null)
+            mDynamicWifi.setEnabled(status);
+        if (mDynamicIme != null)
+            mDynamicIme.setEnabled(status);
+        if (mDynamicUsbTether != null)
+            mDynamicUsbTether.setEnabled(status);
+        if (mNoNotificationsPulldown != null)
+            mNoNotificationsPulldown.setEnabled(status);
+        if (mCollapsePanel != null)
+            mCollapsePanel.setEnabled(status);
+        if (mQuickPulldown != null)
+            mQuickPulldown.setEnabled(status);
+        if (mQsTilesStyle != null)
+            mQsTilesStyle.setEnabled(status);
+        if (mTilePicker != null)
+            mTilePicker.setEnabled(status);
     }
 }

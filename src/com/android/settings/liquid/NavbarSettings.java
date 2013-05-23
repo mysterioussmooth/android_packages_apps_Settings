@@ -17,7 +17,6 @@
 package com.android.settings.liquid;
 
 import android.os.Bundle;
-import android.app.FragmentTransaction;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -29,8 +28,6 @@ import android.provider.Settings;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.R;
 import com.android.settings.Utils;
-import com.android.settings.util.Helpers;
-
 
 public class NavbarSettings extends SettingsPreferenceFragment implements
         OnPreferenceChangeListener {
@@ -44,8 +41,9 @@ public class NavbarSettings extends SettingsPreferenceFragment implements
     private static final String PREF_RING = "navbar_targets_settings";
     private static final String PREF_STYLE_DIMEN = "navbar_style_dimen_settings";
     private static final String PREF_NAVIGATION_BAR_CAN_MOVE = "navbar_can_move";
-    private static final String NAVIGATION_BAR_WIDGETS = "navigation_bar_widgets";
     private static final String KEY_ADVANCED_OPTIONS= "advanced_cat";
+
+    private boolean mHasNavBarByDefault;
 
     ListPreference menuDisplayLocation;
     ListPreference mNavBarMenuDisplay;
@@ -55,7 +53,6 @@ public class NavbarSettings extends SettingsPreferenceFragment implements
     PreferenceScreen mButtonPreference;
     PreferenceScreen mRingPreference;
     PreferenceScreen mStyleDimenPreference;
-    Preference mConfigureWidgets;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,18 +84,12 @@ public class NavbarSettings extends SettingsPreferenceFragment implements
         mRingPreference = (PreferenceScreen) findPreference(PREF_RING);
         mStyleDimenPreference = (PreferenceScreen) findPreference(PREF_STYLE_DIMEN);
 
-        boolean hasNavBarByDefault = mContext.getResources().getBoolean(
+        mHasNavBarByDefault = mContext.getResources().getBoolean(
                 com.android.internal.R.bool.config_showNavigationBar);
+        boolean enableNavigationBar = Settings.System.getInt(getContentResolver(),
+                Settings.System.NAVIGATION_BAR_SHOW, mHasNavBarByDefault ? 1 : 0) == 1;
         mEnableNavigationBar = (CheckBoxPreference) findPreference(ENABLE_NAVIGATION_BAR);
-        mEnableNavigationBar.setChecked(Settings.System.getInt(getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, hasNavBarByDefault ? 1 : 0) == 1);
-        updateNavbarPreferences(Settings.System.getInt(getContentResolver(),
-                Settings.System.NAVIGATION_BAR_SHOW, hasNavBarByDefault ? 1 : 0) == 1);
-
-        // don't allow devices that must use a navigation bar to disable it
-        if (hasNavBarByDefault) {
-            prefs.removePreference(mEnableNavigationBar);
-        }
+        mEnableNavigationBar.setChecked(enableNavigationBar);
 
         mNavigationBarCanMove = (CheckBoxPreference) findPreference(PREF_NAVIGATION_BAR_CAN_MOVE);
         if (!Utils.isPhone(getActivity())) {
@@ -110,16 +101,22 @@ public class NavbarSettings extends SettingsPreferenceFragment implements
                     Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 0);
         }
 
-        mConfigureWidgets = findPreference(NAVIGATION_BAR_WIDGETS);
+        updateNavbarPreferences(enableNavigationBar);
     }
 
-    private void updateNavbarPreferences( boolean show ) {
+    private void updateNavbarPreferences(boolean show) {
+        if (mHasNavBarByDefault) {
+            Settings.System.putInt(getContentResolver(),
+                    Settings.System.UI_FORCE_OVERFLOW_BUTTON,
+                    show ? 0 : 1);
+        }
         mGlowTimes.setEnabled(show);
         mNavBarMenuDisplay.setEnabled(show);
         menuDisplayLocation.setEnabled(show);
         mButtonPreference.setEnabled(show);
         mRingPreference.setEnabled(show);
         mStyleDimenPreference.setEnabled(show);
+        mNavigationBarCanMove.setEnabled(show);
     }
 
     @Override
@@ -130,19 +127,11 @@ public class NavbarSettings extends SettingsPreferenceFragment implements
                     Settings.System.NAVIGATION_BAR_SHOW,
                     ((CheckBoxPreference) preference).isChecked() ? 1 : 0);
             updateNavbarPreferences(((CheckBoxPreference) preference).isChecked());
-            Helpers.restartSystemUI();
             return true;
         } else if (preference == mNavigationBarCanMove) {
             Settings.System.putInt(getActivity().getContentResolver(),
                     Settings.System.NAVIGATION_BAR_CAN_MOVE,
                     ((CheckBoxPreference) preference).isChecked() ? 0 : 1);
-            return true;
-        } else if (preference == mConfigureWidgets) {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            WidgetConfigurationFragment fragment = new WidgetConfigurationFragment();
-            	ft.addToBackStack("config_widgets");
-            	ft.replace(this.getId(), fragment);
-            	ft.commit();
             return true;
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);

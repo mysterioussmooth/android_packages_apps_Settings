@@ -82,6 +82,8 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements P
 
     private boolean mIsScreenLarge;
 
+    private boolean mCheckPreferences;
+
     private Activity mActivity;
     private ContentResolver mResolver;
     private File wallpaperImage;
@@ -104,6 +106,7 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements P
     }
 
     private PreferenceScreen createCustomLockscreenView() {
+        mCheckPreferences = false;
         PreferenceScreen prefs = getPreferenceScreen();
         if (prefs != null) {
             prefs.removeAll();
@@ -172,26 +175,25 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements P
         final int lockBeforeUnlock = Settings.Secure.getInt(getActivity().getContentResolver(),
                 Settings.Secure.LOCK_BEFORE_UNLOCK, 0);
 
+        PreferenceCategory sliderCategory = (PreferenceCategory) findPreference(KEY_SLIDER_OPTIONS);
+
         //setup custom lockscreen customize view
         if ((unsecureUnlockMethod != 1 && lockBeforeUnlock == 0)
                  || unsecureUnlockMethod == -1) {
-             PreferenceCategory sliderCategory = (PreferenceCategory) findPreference(KEY_SLIDER_OPTIONS);
              getPreferenceScreen().removePreference(sliderCategory);
-        }
-
-        mLockscreenTextColor = (ColorPickerPreference) findPreference(KEY_LOCKSCREEN_TEXT_COLOR);
-        mLockscreenTextColor.setOnPreferenceChangeListener(this);
-
-        if (!Utils.isPhone(getActivity())) {
+        } else if (!Utils.isPhone(getActivity())) {
              // Nothing for tablets and large screen devices
-             PreferenceCategory sliderCategory = (PreferenceCategory) findPreference(KEY_SLIDER_OPTIONS);
              sliderCategory.removePreference(mShortcuts);
              sliderCategory.removePreference(mLockscreenShortcutsLongpress);
              sliderCategory.removePreference(mLockscreenEightTargets);
         }
 
+        mLockscreenTextColor = (ColorPickerPreference) findPreference(KEY_LOCKSCREEN_TEXT_COLOR);
+        mLockscreenTextColor.setOnPreferenceChangeListener(this);
+
         setBatteryStatusSummary();
         updateCustomBackgroundSummary();
+        mCheckPreferences = true;
         return prefs;
     }
 
@@ -237,6 +239,9 @@ public class LockscreenInterface extends SettingsPreferenceFragment implements P
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object objValue) {
+        if (!mCheckPreferences) {
+            return false;
+        }
         if (preference == mBatteryStatus) {
             int value = Integer.valueOf((String) objValue);
             int index = mBatteryStatus.findIndexOfValue((String) objValue);

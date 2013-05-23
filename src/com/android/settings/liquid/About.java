@@ -1,3 +1,4 @@
+
 package com.android.settings.liquid;
 
 import android.content.Intent;
@@ -26,9 +27,9 @@ public class About extends SettingsPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.about_rom);
-        mSiteUrl = findPreference("mysterious_website");
-        mSourceUrl = findPreference("mysterious_source");
-        mFacebookUrl = findPreference("mysterious_facebook");
+        mSiteUrl = findPreference("liquid_website");
+        mSourceUrl = findPreference("liquid_source");
+        mFacebookUrl = findPreference("liquid_facebook");
 
         PreferenceGroup devsGroup = (PreferenceGroup) findPreference("devs");
         ArrayList<Preference> devs = new ArrayList<Preference>();
@@ -49,11 +50,11 @@ public class About extends SettingsPreferenceFragment {
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         if (preference == mSiteUrl) {
-            launchUrl("http://goo.im/devs/Mysterious");
+            launchUrl("http://goo.im/devs/liquidsmooth");
         } else if (preference == mSourceUrl) {
-            launchUrl("http://github.com/mysterioussmooth");
+            launchUrl("http://github.com/LiquidSmooth");
         } else if (preference == mFacebookUrl) {
-            launchUrl("http://www.facebook.com/MysteriousROM?ref=hl");
+            launchUrl("https://www.facebook.com/liquidsmoothroms");
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
     }

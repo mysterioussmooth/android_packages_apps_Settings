@@ -87,6 +87,8 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
     private File customnavImage;
     private File customnavTemp;
 
+    private boolean mCheckPreferences;
+
     private static class NavBarCustomAction {
         String activitySettingName;
         Preference preference;
@@ -178,6 +180,9 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (!mCheckPreferences) {
+            return false;
+        }
         if (preference == mNavBarButtonQty) {
             int val = Integer.parseInt((String) newValue);
             Settings.System.putInt(getActivity().getContentResolver(),
@@ -275,7 +280,8 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void refreshSettings() {
+    private PreferenceScreen refreshSettings() {
+        mCheckPreferences = false;
         PreferenceScreen prefs = getPreferenceScreen();
         if (prefs != null) {
             prefs.removeAll();
@@ -361,11 +367,6 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
                } else {
                     mLongPress.setValue("**app**");
                }
-
-               if (uri != null && uriLong!=null) {
-                   if (uriLong.equals("**null**") && uri.equals("**home**"))
-                        mLongPress.setSummary(getResources().getString(R.string.navbar_action_home_longpress_default));
-               }
             }
 
             if (uri != null && !uri.equals("**null**")) {
@@ -417,6 +418,8 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
                 pAction.setIcon(resize(getNavbarIconImage(i, false)));
             }
         }
+        mCheckPreferences = true;
+        return prefs;
     }
 
     private Drawable resize(Drawable image) {
@@ -465,12 +468,16 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_ime_switcher", null, null);
             } else if (uri.equals("**kill**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_killtask", null, null);
+            } else if (uri.equals("**widgets**")) {
+                resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_widget", null, null);
             } else if (uri.equals("**power**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_power", null, null);
             } else if (uri.equals("**notifications**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_notifications", null, null);
             } else if (uri.equals("**lastapp**")) {
                 resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_lastapp", null, null);
+            } else if (uri.equals("**quicksettings**")) {
+                resId = mSystemUiResources.getIdentifier("com.android.systemui:drawable/ic_sysbar_qs", null, null);
             }
         } else {
             try {
@@ -521,12 +528,16 @@ public class NavbarButtonSettings extends SettingsPreferenceFragment implements
                 return getResources().getString(R.string.navbar_action_ime);
             else if (uri.equals("**kill**"))
                 return getResources().getString(R.string.navbar_action_kill);
+            else if (uri.equals("**widgets**"))
+                return getResources().getString(R.string.navbar_action_widgets);
             else if (uri.equals("**power**"))
                 return getResources().getString(R.string.navbar_action_power);
             else if (uri.equals("**notifications**"))
                 return getResources().getString(R.string.navbar_action_notifications);
             else if (uri.equals("**lastapp**"))
                 return getResources().getString(R.string.navbar_action_lastapp);
+            else if (uri.equals("**quicksettings**"))
+                return getResources().getString(R.string.navbar_action_quicksettings);
             else if (uri.equals("**null**"))
                 return getResources().getString(R.string.navbar_action_none);
         } else {

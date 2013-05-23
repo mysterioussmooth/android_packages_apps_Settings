@@ -21,6 +21,12 @@
         android:key="interface_general"
         android:title="@string/general_settings_title">
 
+        <CheckBoxPreference
+            android:key="use_alt_resolver"
+            android:title="@string/alt_resolver"
+            android:summary="@string/alt_resolver_summary"
+            android:defaultValue="false" />
+
         <Preference
             android:key="custom_carrier_label"
             android:title="@string/custom_carrier_label_title" />
@@ -39,9 +45,10 @@
         <ListPreference
             android:key="pref_low_battery_warning_policy"
             android:title="@string/pref_low_battery_warning_policy_title"
+            android:dialogTitle="@string/pref_low_battery_warning_policy_dialog_title"
             android:entries="@array/pref_low_battery_warning_policy_entries"
             android:entryValues="@array/pref_low_battery_warning_policy_values"
-            android:defaultValue="3" />
+            android:defaultValue="0" />
 
         <ListPreference
             android:key="vibrator_multiplier"
@@ -50,6 +57,7 @@
             android:title="@string/vibrator_multiplier_title"
             android:entries="@array/vibration_multiplier_values"
             android:entryValues="@array/vibration_multiplier_values" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -79,11 +87,36 @@
             android:key="recents_ram_bar"
             android:fragment="com.android.settings.liquid.RamBar"
             android:title="@string/ram_bar" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="interface_additional"
-        android:title="@string/additional_settings_title">
+        android:key="interface_tablet"
+        android:title="@string/tablet_settings_title">
+
+        <CheckBoxPreference
+            android:key="force_dual_pane"
+            android:title="@string/force_dual_pane_title"
+            android:summary="@string/force_dual_pane_summary" />
+
+        <CheckBoxPreference
+            android:key="hide_extras"
+            android:title= "@string/hide_extras"
+            android:summary= "@string/hide_extras_summary"
+            android:defaultValue="false" />
+            
+        <PreferenceScreen
+            android:key="lcd_density_setup"
+            android:fragment="com.android.settings.liquid.DensityChanger"
+            android:title="@string/lcd_density_title"
+            android:summary="@string/lcd_density_summary" />
+
+        <ListPreference
+            android:key="user_mode_ui"
+            android:title="@string/user_mode_ui"
+            android:summary="@string/user_mode_ui_summary"
+            android:entries="@array/user_mode_ui_entries"
+            android:entryValues="@array/user_mode_ui_values" />
 
         <PreferenceScreen
 	        android:key="xposed_installer"
@@ -102,6 +135,7 @@
                 android:targetPackage="de.robv.android.xposed.mods.appsettings"
                 android:targetClass="de.robv.android.xposed.mods.appsettings.XposedModActivity" />
         </PreferenceScreen>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

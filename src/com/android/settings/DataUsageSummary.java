@@ -40,7 +40,6 @@ import static android.net.TrafficStats.GB_IN_BYTES;
 import static android.net.TrafficStats.MB_IN_BYTES;
 import static android.net.TrafficStats.UID_REMOVED;
 import static android.net.TrafficStats.UID_TETHERING;
-import static android.telephony.TelephonyManager.SIM_STATE_READY;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -277,13 +276,19 @@ public class DataUsageSummary extends Fragment {
         mPolicyEditor = new NetworkPolicyEditor(mPolicyManager);
         mPolicyEditor.read();
 
+        try {
+            mStatsSession = mStatsService.openSession();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
         mShowWifi = mPrefs.getBoolean(PREF_SHOW_WIFI, false);
         mShowEthernet = mPrefs.getBoolean(PREF_SHOW_ETHERNET, false);
 
         // override preferences when no mobile radio
         if (!hasReadyMobileRadio(context)) {
-            mShowWifi = hasWifiRadio(context);
-            mShowEthernet = hasEthernet(context);
+            mShowWifi = true;
+            mShowEthernet = true;
         }
 
         setHasOptionsMenu(true);
@@ -297,12 +302,6 @@ public class DataUsageSummary extends Fragment {
         final View view = inflater.inflate(R.layout.data_usage_summary, container, false);
 
         mUidDetailProvider = new UidDetailProvider(context);
-
-        try {
-            mStatsSession = mStatsService.openSession();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
 
         mTabHost = (TabHost) view.findViewById(android.R.id.tabhost);
         mTabsContainer = (ViewGroup) view.findViewById(R.id.tabs_container);
@@ -1183,8 +1182,8 @@ public class DataUsageSummary extends Fragment {
         final String rangePhrase = formatDateRange(context, start, end);
 
         final int summaryRes;
-        if (TAB_MOBILE.equals(mCurrentTab) || TAB_3G.equals(mCurrentApp)
-                || TAB_4G.equals(mCurrentApp)) {
+        if (TAB_MOBILE.equals(mCurrentTab) || TAB_3G.equals(mCurrentTab)
+                || TAB_4G.equals(mCurrentTab)) {
             summaryRes = R.string.data_usage_total_during_range_mobile;
         } else {
             summaryRes = R.string.data_usage_total_during_range;
@@ -2192,7 +2191,7 @@ public class DataUsageSummary extends Fragment {
     }
 
     /**
-     * Test if device has a mobile data radio with SIM in ready state.
+     * Test if device has a mobile data radio in ready state.
      */
     public static boolean hasReadyMobileRadio(Context context) {
         if (TEST_RADIOS) {
@@ -2202,8 +2201,9 @@ public class DataUsageSummary extends Fragment {
         final ConnectivityManager conn = ConnectivityManager.from(context);
         final TelephonyManager tele = TelephonyManager.from(context);
 
-        // require both supported network and ready SIM
-        return conn.isNetworkSupported(TYPE_MOBILE) && tele.getSimState() == SIM_STATE_READY;
+        // require both supported network and phone number
+        return conn.isNetworkSupported(TYPE_MOBILE) &&
+                !TextUtils.isEmpty(tele.getLine1Number());
     }
 
     /**
@@ -2321,7 +2321,7 @@ public class DataUsageSummary extends Fragment {
         final ArrayList<CharSequence> limited = Lists.newArrayList();
 
         final TelephonyManager tele = TelephonyManager.from(context);
-        if (tele.getSimState() == SIM_STATE_READY) {
+        if (!TextUtils.isEmpty(tele.getLine1Number())) {
             final String subscriberId = getActiveSubscriberId(context);
             if (mPolicyEditor.hasLimitedPolicy(buildTemplateMobileAll(subscriberId))) {
                 limited.add(getText(R.string.data_usage_list_mobile));

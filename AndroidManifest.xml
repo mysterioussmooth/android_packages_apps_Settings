@@ -64,29 +64,28 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SET_TIME" />
 
-    <!-- Superuser -->
     <permission
-           android:name="android.permission.REQUEST_SUPERUSER"
-           android:protectionLevel="signature" />
+        android:name="android.permission.REQUEST_SUPERUSER"
+        android:protectionLevel="signature" />
     <permission
-           android:name="android.permission.REPORT_SUPERUSER"
-           android:protectionLevel="signature" />
+        android:name="android.permission.REPORT_SUPERUSER"
+        android:protectionLevel="signature" />
 
     <permission-group
-            android:name="android.permission-group.SUPERUSER"
-            android:description="@string/superuser_description_more"
-            android:icon="@drawable/ic_action_permission"
-            android:label="@string/superuser"
-            android:priority="10000" />
+        android:name="android.permission-group.SUPERUSER"
+        android:description="@string/superuser_description_more"
+        android:icon="@drawable/ic_action_permission"
+        android:label="@string/superuser"
+        android:priority="10000" />
 
     <permission
-            android:name="android.permission.ACCESS_SUPERUSER"
-            android:description="@string/superuser_description_more"
-            android:icon="@drawable/ic_action_permission"
-            android:label="@string/superuser_description"
-            android:logo="@drawable/ic_action_permission"
-            android:permissionGroup="android.permission-group.SUPERUSER"
-            android:protectionLevel="dangerous" />
+        android:name="android.permission.ACCESS_SUPERUSER"
+        android:description="@string/superuser_description_more"
+        android:icon="@drawable/ic_action_permission"
+        android:label="@string/superuser_description"
+        android:logo="@drawable/ic_action_permission"
+        android:permissionGroup="android.permission-group.SUPERUSER"
+        android:protectionLevel="dangerous" />
 
     <application android:label="@string/settings_label"
             android:icon="@mipmap/ic_launcher_settings"
@@ -334,11 +333,9 @@
             </intent-filter>
         </activity-alias>
 
-        <activity android:name="Settings$ApnSettingsActivity"
-                  android:label="@string/apn_settings"
-                  android:uiOptions="none"
+        <activity android:name="Settings$ApnSettingsActivity" android:label="@string/apn_settings"
                   android:configChanges="orientation|keyboardHidden|screenSize"
-                  android:launchMode="singleTask">
+                  android:launchMode="singleTask" android:clearTaskOnLaunch="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.settings.APN_SETTINGS" />
@@ -1537,8 +1534,6 @@
         <activity android:name=".liquid.QuickSettings" />
         <activity android:name=".liquid.QuickSettingsTilesStyle" />
         <activity android:name=".liquid.NotificationDrawer" />
-        <activity android:name=".liquid.Pie" />
-        <activity android:name=".liquid.PieColor" />
         <activity android:name=".liquid.StatusBar" />
         <activity android:name=".liquid.StatusBarStyle" />
         <activity android:name=".liquid.StatusBarClockStyle" />
@@ -1555,7 +1550,15 @@
         <activity android:name=".liquid.NavbarStyleDimenSettings" />
         <activity android:name=".liquid.NavBarStyle" />
         <activity android:name=".liquid.NavBarButtonStyle" />
+        <activity android:name=".liquid.PieButtonSettings" />
+        <activity android:name=".liquid.PieButtonStyleSettings" />
+        <activity android:name=".liquid.PieControl" />
+        <activity android:name=".liquid.PieStyleSettings" />
+        <activity android:name=".liquid.PieTriggerSettings" />
         <activity android:name=".liquid.RamBar" />
+        <activity android:name=".liquid.WidgetsConfiguration" />
+        <activity android:name=".liquid.WidgetsSettings" />
+        <activity android:name=".liquid.WidgetsStyle" />
         <activity android:name=".ApnEditor" />
 
         <activity
@@ -1564,6 +1567,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+        </activity>
+
+        <activity android:name="Settings$PowerMenuSettingsActivity"
+            android:label="@string/power_menu_title"
+            android:excludeFromRecents="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
+                android:value="com.android.settings.liquid.PowerMenu" />
         </activity>
 
         <!-- Pseudo-activity used to provide an intent-filter entry point to display rotation config -->
@@ -1747,14 +1761,14 @@
                 android:clearTaskOnLaunch="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.android.settings.notificationshortcut.NOTIFICATION_SHORTCUTS" />
-                <action android:name="android.settings.notificationshortcut.NOTIFICATION_SHORTCUTS" />
+                <action android:name="com.android.settings.liquid.notificationshortcut.NOTIFICATION_SHORTCUTS" />
+                <action android:name="android.settings.liquid.notificationshortcut.NOTIFICATION_SHORTCUTS" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.VOICE_LAUNCH" />
                 <category android:name="com.android.settings.SHORTCUT" />
             </intent-filter>
             <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
-                android:value="com.android.settings.notificationshortcut.NotificationShortcuts" />
+                android:value="com.android.settings.liquid.notificationshortcut.NotificationShortcuts" />
             <meta-data android:name="com.android.settings.TOP_LEVEL_HEADER_ID"
                 android:resource="@id/liquid_notification_shortcuts" />
         </activity>
